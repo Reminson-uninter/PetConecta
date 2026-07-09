@@ -14,13 +14,17 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="home.css" />
+    <link rel="stylesheet" href="../styles/home.css" />
 
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
+    />
+    <link
+      rel="stylesheet"
+      href="	https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
     />
 
     <style>
@@ -124,7 +128,12 @@
       }
       .leaflet-popup-content {
         margin: 10px 12px;
-        line-height: 1.4;
+        line-height: 1.1;
+        max-width: min(100px, 85vw);
+      }
+      .leaflet-popup-content img {
+        max-width: 100%;
+        height: auto;
       }
     </style>
   </head>
@@ -177,7 +186,7 @@
           <h2>Campanhas Ativas</h2>
           <a href="#campanhas">
             <img
-              src="assets/img/campanha.png"
+              src="../assets/img/campanha.png"
               alt="Campanha Alimente o Amor"
               class="highlight-image"
             />
@@ -192,7 +201,7 @@
         <article class="highlight-box">
           <h2>Adoções Recentes</h2>
           <img
-            src="assets/img/adoção.jpg"
+            src="../assets/img/adoção.jpg"
             alt="Adoções recentes"
             class="highlight-image"
           />
@@ -206,7 +215,7 @@
         <article class="highlight-box">
           <h2>Dicas</h2>
           <img
-            src="assets/img/gato-perdido.jpg"
+            src="../assets/img/gato-perdido.jpg"
             alt="Dicas para encontrar pets"
             class="highlight-image"
           />
@@ -257,48 +266,74 @@
         </div>
       </section>
 
-      <section id="adocoes">
-        <h2>🐶🐱 Adoções Recentes</h2>
-
-        <div class="filtros">
-          <h4>🔍 Filtrar pets</h4>
-          <select id="filtroTipo">
-            <option value="">Tipo</option>
-            <option value="Cão">Cão</option>
-            <option value="Gato">Gato</option>
-          </select>
-          <select id="filtroSexo">
-            <option value="">Sexo</option>
-            <option value="Macho">Macho</option>
-            <option value="Fêmea">Fêmea</option>
-          </select>
-          <select id="filtroPorte">
-            <option value="">Porte</option>
-            <option value="Pequeno">Pequeno</option>
-            <option value="Médio">Médio</option>
-            <option value="Grande">Grande</option>
-          </select>
-
-          <button type="button" id="btnLocalizacao" class="btn-geo">
-            📍 Pets Próximos
+      <section class="carousel-section">
+        <div id="carousel_info" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img
+                src="../assets/img/leshimaniose.png"
+                class="d-block w-100"
+                alt="Campanha Ativa"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="../assets/img/adoção.jpg"
+                class="d-block w-100"
+                alt="Adoções Recentes"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="../assets/img/gato-perdido.jpg"
+                class="d-block w-100"
+                alt="Dicas para Pets"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="../assets/img/leishmaniose_campanha.png"
+                class="d-block w-100"
+                alt="Campanha de Prevenção contra Leishmaniose"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="../assets/img/vacinacao_importancia.png"
+                class="d-block w-100"
+                alt="Importância da Vacinação"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="../assets/img/castracao_campanha.png"
+                class="d-block w-100"
+                alt="Importância da Castração"
+              />
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#carouselExample"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
           </button>
-
-          <button id="btnFiltrar">Filtrar</button>
-          <button id="btnLimpar">Limpar</button>
-
-          <span id="statusLocalizacao"></span>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#carouselExample"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Próximo</span>
+          </button>
         </div>
+      </section>
 
-        <section class="rules">
-          <h2>Regras e Orientações para Adoção</h2>
-          <ul>
-            <li>Ser maior de 18 anos</li>
-            <li>Apresentar documento com foto</li>
-            <li>Concordar com visita de acompanhamento</li>
-            <li>Garantir ambiente seguro e amoroso</li>
-          </ul>
-        </section>
-
+      <section>
         <div class="adocoes-container"></div>
       </section>
 
@@ -325,7 +360,7 @@
         <section class="grid" aria-label="Categorias de Dicas">
           <article class="card">
             <img
-              src="assets/img/saude-pet.png"
+              src="../assets/img/saude-pet.png"
               alt="Veterinária cuidando de cachorro"
             />
             <h2>🩺 Saúde</h2>
@@ -336,7 +371,7 @@
           </article>
 
           <article class="card">
-            <img src="assets/img/alimentacao.png" alt="Alimentando felino" />
+            <img src="../assets/img/alimentacao.png" alt="Alimentando felino" />
             <h2>🍽️ Alimentação</h2>
             <ul>
               <li>Ração de qualidade conforme idade e porte.</li>
@@ -348,7 +383,7 @@
 
           <article class="card">
             <img
-              src="assets/img/viagem.png"
+              src="../assets/img/viagem.png"
               alt="Família ao lado do carro colocando pet na caixa de transporte"
             />
             <h2>✈️ Viagens com Pets</h2>
@@ -362,7 +397,7 @@
 
           <article class="card">
             <img
-              src="assets/img/exercicio-pet.png"
+              src="../assets/img/exercicio-pet.png"
               alt="Mulher fazendo exercícios ao ar livre com cachorros"
             />
             <h2>🧘‍♂️ Bem-estar e Comportamento</h2>
@@ -378,7 +413,7 @@
             <h2>🩹 Cuidados Especiais</h2>
             <img
               id="combo"
-              src="assets/img/cuidados-especiais.png"
+              src="../assets/img/cuidados-especiais.png"
               alt="Veterinária examinando um gato idoso"
             />
           </article>
@@ -540,11 +575,11 @@
       </div>
     </footer>
 
-    <script src="js/anima.js" defer></script>
-    <script src="js/parceiros.js"></script>
-    <script src="js/exibir_pets.js"></script>
-    <script type="module" src="js/main.js"></script>
-    <script type="module" src="js/contatoAPI.js"></script>
+    <script src="../scripts/js/anima.js" defer></script>
+    <script src="../scripts/js/parceiros.js"></script>
+    <script src="../scripts/js/exibir_pets.js"></script>
+    <script type="module" src="../scripts/js/main.js"></script>
+    <script type="module" src="../scripts/js/contatoAPI.js"></script>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -712,14 +747,21 @@
           iconAnchor: [7, 7],
         });
 
-        const ocorrenciasPets =
-          JSON.parse(localStorage.getItem("ocorrenciasPets")) || [];
+        let ultimoEstadoMapa = "";
+
+        function limparMarcadores() {
+          marcadoresAtivos.forEach((marcador) => {
+            mapa.removeLayer(marcador);
+          });
+          marcadoresAtivos = [];
+        }
 
         function renderizarPinsNoMapa(listaPets) {
-          marcadoresAtivos = [];
+          limparMarcadores();
 
           if (!listaPets || listaPets.length === 0) {
             atualizarStatus("Nenhuma ocorrência cadastrada ainda.", "#777");
+            mapa.setView([-16.3299, -39.0202], 14);
             return;
           }
 
@@ -742,18 +784,38 @@
                 ? "🚨 Desaparecido"
                 : "✅ Encontrado";
 
+            const conteudoPopup = `
+              <strong style="color: ${corTextoPopup}; font-size: 1rem;">${tagStatus}</strong><br>
+              <div><img style="width:100%; border-radius:8px; margin-top:6px;" src="${pet.imagem}" alt="${pet.nome}" onerror="this.src='https://via.placeholder.com/150'"></div>
+              <strong>Nome:</strong> ${pet.nome || "Sem nome"}<br>
+              <strong>Info:</strong> ${pet.descricao || "Sem informações adicionais."}
+            `;
+
             const marcador = L.marker([latitude, longitude], {
               icon: iconeMarcador,
-            }).addTo(mapa).bindPopup(`
-                <strong style="color: ${corTextoPopup}; font-size: 1rem;">${tagStatus}</strong><br>
-                <div><img style="width:100%; border-radius:8px; margin-top:6px;" src="${pet.imagem}" alt="${pet.nome}" onerror="this.src='https://via.placeholder.com/150'"></div>
-                <strong>Nome:</strong> ${pet.nome || "Sem nome"}<br>
-                <strong>Info:</strong> ${pet.descricao || "Sem informações adicionais."}
-              `);
+            })
+              .addTo(mapa)
+              .bindPopup(conteudoPopup);
 
-            marcador.on("click", () => {
+            const abrirPopupDoMarcador = () => {
+              marcador.openPopup();
+            };
+
+            const abrirPopupECentralizar = () => {
+              marcador.openPopup();
               mapa.flyTo([latitude, longitude], 15, { duration: 1.1 });
-            });
+            };
+
+            marcador.on("click", abrirPopupECentralizar);
+
+            if (
+              window.matchMedia("(hover: hover) and (pointer: fine)").matches
+            ) {
+              marcador.on("mouseover", abrirPopupDoMarcador);
+              marcador.on("mouseout", () => marcador.closePopup());
+            } else {
+              marcador.on("touchstart", abrirPopupDoMarcador);
+            }
 
             marcadoresAtivos.push(marcador);
             coordenadas.push([latitude, longitude]);
@@ -767,6 +829,19 @@
               "#2e8b57",
             );
           }
+        }
+
+        function carregarOcorrenciasMapa() {
+          const ocorrenciasPets =
+            JSON.parse(localStorage.getItem("ocorrenciasPets")) || [];
+          const estadoAtual = JSON.stringify(ocorrenciasPets);
+
+          if (estadoAtual === ultimoEstadoMapa) {
+            return;
+          }
+
+          ultimoEstadoMapa = estadoAtual;
+          renderizarPinsNoMapa(ocorrenciasPets);
         }
 
         if (btnCentralizarMapa) {
@@ -783,8 +858,14 @@
         window.addEventListener("resize", () => mapa.invalidateSize());
         setTimeout(() => mapa.invalidateSize(), 250);
 
-        renderizarPinsNoMapa(ocorrenciasPets);
+        carregarOcorrenciasMapa();
+        window.addEventListener("storage", () => carregarOcorrenciasMapa());
+        setInterval(carregarOcorrenciasMapa, 2000);
       });
     </script>
+    <script
+      src="	https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
   </body>
 </html>

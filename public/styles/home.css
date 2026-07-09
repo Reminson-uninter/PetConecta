@@ -13,13 +13,13 @@ html {
 
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: hidden; /* Evita rolagem horizontal */
   font-family: "Segoe UI", sans-serif;
   background-color: #faf5f1;
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: smooth; /* Habilita a rolagem suave */
   scroll-padding-top: 90px;
 }
 
@@ -28,6 +28,12 @@ ul {
 }
 
 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover,
+a:focus-visible {
   text-decoration: none;
 }
 
@@ -72,12 +78,13 @@ a {
 
   color: white;
   font-weight: bold;
+  text-decoration: none;
 
   border-radius: 6px;
 
   transition: 0.3s;
   position: relative;
-  white-space: nowrap;
+  white-space: nowrap; /* Evita quebra de linha */
 }
 
 #menu a:hover,
@@ -87,6 +94,37 @@ a {
   color: #fff7f0;
   outline: none;
   box-shadow: inset 0 -2px 0 #fff;
+}
+/*Carrossel image*/
+
+.carousel-section {
+  max-width: 80%;
+  height: 50%;
+  margin: 30px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#carousel_info {
+  height: auto;
+}
+
+.carousel-inner {
+  height: auto;
+}
+
+.carousel-item {
+  height: auto;
+}
+
+.carousel-item img,
+.d-block.w-100 {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 /* BOTÃO MOBILE */
@@ -154,13 +192,16 @@ a {
 .welcome {
   text-align: center;
   background-color: white;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
 }
 
 .logoImg {
   width: 100%;
   height: 600px;
 
-  background-image: url("assets/img/york\ fullHD.png");
+  background-image: url("../assets/img/york fullHD.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -182,7 +223,9 @@ a {
 
 button,
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   padding: 12px 20px;
 
@@ -193,18 +236,44 @@ button,
   color: white;
 
   font-weight: bold;
+  text-decoration: none;
 
   cursor: pointer;
 
   transition:
     background-color 0.3s,
-    transform 0.2s;
+    transform 0.2s,
+    box-shadow 0.3s;
 }
 
 button:hover,
 .btn:hover {
   background-color: #45a049;
   transform: scale(1.03);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.welcome .btn,
+.welcome #action-btn,
+button.btn[disabled] {
+  background: linear-gradient(135deg, #ff751a, #ff8f3d);
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(255, 117, 26, 0.25);
+  margin-top: 18px;
+}
+
+.welcome .btn:hover,
+.welcome #action-btn:hover,
+button.btn[disabled]:hover {
+  background: linear-gradient(135deg, #e9640f, #ff7a1a);
+  transform: translateY(-2px) scale(1.03);
+}
+
+button.btn[disabled] {
+  opacity: 1;
+  cursor: pointer;
 }
 
 button:disabled {
@@ -225,12 +294,14 @@ button:disabled {
 .highlights {
   display: flex;
   gap: 20px;
-
-  padding: 2rem;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 .highlight-box {
-  flex: 1;
+  flex: 1 1 280px;
 
   background-color: white;
 
@@ -275,8 +346,8 @@ button:disabled {
 .about-container {
   display: flex;
   flex-wrap: wrap;
-  width: 97%;
-  margin: 0 25px;
+  width: min(100%, 1200px);
+  margin: 0 auto 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
@@ -628,7 +699,14 @@ footer {
   /* HERO */
 
   .logoImg {
-    height: 350px;
+    width: 100%;
+    height: 600px;
+    margin: 0;
+    position: relative;
+    background-image: url("../assets/img/york fullHD.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
   }
 
   .welcome h1 {
