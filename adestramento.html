@@ -371,6 +371,21 @@
       </div>
     </footer>
 
-    <script src="script/mobile-navbar.js"></script>
+    
+    <script>
+      const btnMobile = document.querySelector("#btn-mobile");
+      function toggleMenu() {
+        const nav = document.querySelector("#nav-menu");
+        nav.classList.toggle("active");
+      }
+      btnMobile.addEventListener("click", toggleMenu);
+
+      // Fechar menu ao clicar em link
+      document.querySelectorAll("#menu a").forEach((link) => {
+        link.addEventListener("click", () => {
+          document.querySelector("#nav-menu").classList.remove("active");
+        });
+      });
+    </script>
   </body>
 </html>
