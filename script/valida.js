@@ -1,3 +1,9 @@
+/* Arquivo de script: valida.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: valida.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 document.getElementById('action-btn').addEventListener('click', () => {
   const usuarioLogado = sessionStorage.getItem('usuarioLogado');
 

@@ -1,3 +1,9 @@
+/* Arquivo de script: login_system.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: login_system.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 
 // Função para verificar login antes de editar ou excluir
 function verificarLogin(idPet, acao) {

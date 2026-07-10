@@ -1,3 +1,9 @@
+/* Arquivo de script: firebase.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: firebase.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 import admin from 'firebase-admin';
 import path from 'path';
 import { fileURLToPath } from 'url';

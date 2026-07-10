@@ -1,3 +1,9 @@
+/* Arquivo de script: painelOng.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: painelOng.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 
   // Verifica ONG logada
   const ongLogada = JSON.parse(localStorage.getItem('ongLogada'));

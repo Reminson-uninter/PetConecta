@@ -1,3 +1,9 @@
+/* Arquivo de script: autenticaAcao.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: autenticaAcao.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 function autenticarAcao(acao, id) {
   const usuarioSalvo = JSON.parse(localStorage.getItem('usuarioLogado'));
   const listaPets = JSON.parse(localStorage.getItem('pets')) || [];

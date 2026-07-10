@@ -1,3 +1,6 @@
+/* Arquivo de estilos: cadastrados.css
+   Define a apresentação visual da página correspondente e mantém padronização de layout. */
+
 .container {
   display: flex;
   flex-direction: column;

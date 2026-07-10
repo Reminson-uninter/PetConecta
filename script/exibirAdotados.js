@@ -60,8 +60,7 @@ function exibir(pets) {
     button.classList.add('adopt-btn');
     button.textContent = 'Quero adotar';
     button.addEventListener('click', () => {
-      localStorage.setItem('petSelecionado', JSON.stringify(pet));
-      window.location.href = 'adotar.html';
+      window.location.href = 'https://www.anjosdajuda.org/adote';
     });
 
     info.appendChild(button);

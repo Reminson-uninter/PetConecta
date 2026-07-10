@@ -1,3 +1,9 @@
+/* Arquivo de script: cria_e_valida.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: cria_e_valida.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 // Cadastro de ONG
 document.getElementById('cadastroOng').addEventListener('submit', function(event) {
   event.preventDefault();

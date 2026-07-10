@@ -1,3 +1,9 @@
+/* Arquivo de script: dados2.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: dados2.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 // Função para gerar um ID único de 4 dígitos
 function gerarIdPet() {
   const listaPets = JSON.parse(localStorage.getItem('pets')) || [];

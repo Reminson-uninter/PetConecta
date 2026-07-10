@@ -1,3 +1,9 @@
+/* Arquivo de script: cadastroPetAdoc.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: cadastroPetAdoc.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 // Ao carregar a página, exibe os pets salvos
 window.addEventListener('DOMContentLoaded', () => {
   const dadosSalvos = JSON.parse(localStorage.getItem('dadosPet')) || [];

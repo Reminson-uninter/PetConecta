@@ -1,3 +1,9 @@
+/* Arquivo de script: perdidos.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: perdidos.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 document.addEventListener("DOMContentLoaded", function () {
   const container = document.getElementById("dadosSalvos");
 

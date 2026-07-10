@@ -1,3 +1,9 @@
+/* Arquivo de script: login_system (1).js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: login_system (1).js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 
 document.querySelector('#formulario').addEventListener('submit', function(event) {
   event.preventDefault();

@@ -1,3 +1,9 @@
+/* Arquivo de script: contato.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: contato.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 import express from 'express';
 import db from './firebase.js';
 

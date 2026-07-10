@@ -1,3 +1,9 @@
+/* Arquivo de script: recuperaCards.js
+   Responsável pela lógica e comportamento desta funcionalidade/página. */
+
+/* Arquivo JS: recuperaCards.js
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
 function gerarIdPet() {
   const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
   let novoId;
