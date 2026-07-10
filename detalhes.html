@@ -1,100 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Detalhes do Pet</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/detalhes.css" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalhes do Pet</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/css/detalhes.css" />
+  </head>
+  <body>
+    <header id="cabeca">
+      <h1 id="logo">🐾 PetFinder</h1>
 
-</head>
-<body>
+      <nav id="nav-menu">
+        <button id="btn-mobile">
+          Menu
+          <span id="hamburguer"></span>
+        </button>
+        <ul id="menu">
+          <li><a href="index.html">Página Inicial</a></li>
+          <li><a href="animais_encontra.html">Encontrados</a></li>
+          <li><a href="adocao.html">Adoção</a></li>
+          <li><a href="dicas.html">Dicas</a></li>
+          <li><a href="cadastrados.html">Pets Cadastrados</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </nav>
+    </header>
 
-  <header id="cabeca">
-    <h1 id="logo">🐾 PetFinder</h1>
+    <main>
+      <div class="detalhes-container" id="detalhesPet">
+        <!-- Conteúdo será inserido via JavaScript -->
+      </div>
+    </main>
+    <footer
+      style="
+        background-color: #ff751a;
+        color: white;
+        padding: 30px 0;
+        font-family: &quot;Segoe UI&quot;, sans-serif;
+      "
+    >
+      <div style="max-width: 1000px; margin: auto; text-align: center">
+        <h3 style="margin-bottom: 10px">🐶 PetFinder</h3>
+        <p style="margin-bottom: 20px">
+          Conectando pets incríveis a lares amorosos 💕
+        </p>
 
-    <nav id="nav-menu">
-      <button id="btn-mobile" >Menu
-        <span id="hamburguer"></span>
-      </button>
-      <ul id="menu">
-        <li><a href="index.html">Página Inicial</a></li>
-        <li><a href="animais_encontra.html">Encontrados</a></li>
-        <li><a href="adocao.html">Adoção</a></li>
-        <li><a href="dicas.html">Dicas</a></li>
-        <li><a href="cadastrados.html">Pets Cadastrados</a></li>
-        <li><a href="contato.html">Contato</a></li>
-         <li><a href="login_ong.html">Área da ONG</a></li>
-      </ul>
-    </nav>
-  </header>
+        <div style="margin-bottom: 20px">
+          <a
+            href="https://www.instagram.com/seuusuario"
+            target="_blank"
+            style="margin: 0 15px"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png"
+              alt="Instagram"
+              width="32"
+              height="32"
+            />
+          </a>
+          <a
+            href="https://www.facebook.com/seuusuario"
+            target="_blank"
+            style="margin: 0 15px"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/733/733547.png"
+              alt="Facebook"
+              width="32"
+              height="32"
+            />
+          </a>
+        </div>
 
-  <main>
-    <div class="detalhes-container" id="detalhesPet">
-      <!-- Conteúdo será inserido via JavaScript -->
-    </div>
-  </main>
-  <footer style="background-color: #ff751a; color: white; padding: 30px 0; font-family: 'Segoe UI', sans-serif;">
-  <div style="max-width: 1000px; margin: auto; text-align: center;">
-    <h3 style="margin-bottom: 10px;">🐶 PetFinder</h3>
-    <p style="margin-bottom: 20px;">Conectando pets incríveis a lares amorosos 💕</p>
-    
-    <div style="margin-bottom: 20px;">
-      <a href="https://www.instagram.com/seuusuario" target="_blank" style="margin: 0 15px;">
-        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="32" height="32">
-      </a>
-      <a href="https://www.facebook.com/seuusuario" target="_blank" style="margin: 0 15px;">
-        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="32" height="32">
-      </a>
-    </div>
+        <nav style="margin-bottom: 15px">
+          <a
+            href="index.html"
+            style="color: white; margin: 0 10px; text-decoration: none"
+            >Página Inicial</a
+          >
+          |
+          <a
+            href="adocao.html"
+            style="color: white; margin: 0 10px; text-decoration: none"
+            >Adoção</a
+          >
+          |
+          <a
+            href="dicas.html"
+            style="color: white; margin: 0 10px; text-decoration: none"
+            >Cuidados</a
+          >
+          |
+          <a
+            href="contato.html"
+            style="color: white; margin: 0 10px; text-decoration: none"
+            >Contato</a
+          >
+        </nav>
 
-    <nav style="margin-bottom: 15px;">
-      <a href="Index.html" style="color: white; margin: 0 10px; text-decoration: none;">Página Inicial</a> |
-      <a href="adocao.html" style="color: white; margin: 0 10px; text-decoration: none;">Adoção</a> |
-      <a href="dicas.html" style="color: white; margin: 0 10px; text-decoration: none;">Cuidados</a> |
-      <a href="contato.html" style="color: white; margin: 0 10px; text-decoration: none;">Contato</a>
-    </nav>
+        <p style="font-size: 14px">
+          © 2025 PetFinder. Todos os direitos reservados.
+        </p>
+      </div>
+    </footer>
+    <script>
+      const btnMobile = document.querySelector("#btn-mobile");
+      function toggleMenu() {
+        const nav = document.querySelector("#nav-menu"); /*pega navegação*/
+        nav.classList.toggle(
+          "active",
+        ); /*toggle ,significa adicione caso não tenha ou remover ,caso tenha */
+      }
+      btnMobile.addEventListener("click", toggleMenu);
 
-    <p style="font-size: 14px;">© 2025 PetFinder. Todos os direitos reservados.</p>
-  </div>
-</footer>
-  <script>
-  const btnMobile =document.querySelector('#btn-mobile');
-  function toggleMenu(){
-      const nav =document.querySelector('#nav-menu');/*pega navegação*/
-      nav.classList.toggle('active');/*toggle ,significa adicione caso não tenha ou remover ,caso tenha */
+      const urlParams = new URLSearchParams(window.location.search);
+      const petId = urlParams.get("id");
+      const listaPets = JSON.parse(localStorage.getItem("pets")) || [];
+      const pet = listaPets.find((p) => p.id == petId);
 
-  }
-  btnMobile.addEventListener('click',toggleMenu);
-  
-    const urlParams = new URLSearchParams(window.location.search);
-    const petId = urlParams.get('id');
-    const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
-    const pet = listaPets.find(p => p.id == petId);
+      const container = document.getElementById("detalhesPet");
 
-    const container = document.getElementById('detalhesPet');
+      if (pet) {
+        container.innerHTML = `
+        <article class="pet-detail-card">
+          <div class="pet-image-wrapper">
+            <img src="${pet.imagem || "assets/img/adoção.jpg"}" alt="Imagem de ${pet.nome}">
+          </div>
 
-    if (pet) {
-      container.innerHTML = `
-        <img src="${pet.imagem}" alt="Imagem de ${pet.nome}">
-        <h2>${pet.nome}</h2>
-        <p><strong>ID:</strong> ${pet.id}</p>
-        <p><strong>Raça:</strong> ${pet.raca}</p>
-        <p><strong>Sexo:</strong> ${pet.sexo || 'Indefinido'}</p>
-          <p><strong>Idade:</strong> ${pet.idade || 'Não informada'}</p>
-        <p><strong>Localização:</strong> ${pet.localiza}</p>
-        <p><strong>Data:</strong> ${pet.data}</p>
-        <p><strong>Contato:</strong> ${pet.contato}</p>
-        <p><strong>Descrição:</strong> ${pet.descricao || 'Sem descrição disponível.'}</p>
-        <a href="index.html" class="voltar-btn">← Voltar</a>
+          <div class="pet-detail-body">
+            <span class="pet-status">${(pet.status || "Para adoção").toUpperCase()}</span>
+            <h2>${pet.nome}</h2>
+            <p class="pet-description">${pet.descricao || "Sem descrição disponível."}</p>
+
+            <div class="pet-info-grid">
+              <div><strong>ID:</strong> ${pet.id}</div>
+              <div><strong>Raça:</strong> ${pet.raca || "Não informada"}</div>
+              <div><strong>Sexo:</strong> ${pet.sexo || "Indefinido"}</div>
+              <div><strong>Idade:</strong> ${pet.idade || "Não informada"}</div>
+              <div><strong>Localização:</strong> ${pet.localiza || "Não informada"}</div>
+              <div><strong>Data:</strong> ${pet.data || "Não informada"}</div>
+            </div>
+
+            <p class="pet-contact"><strong>Contato:</strong> ${pet.contato || "Não informado"}</p>
+
+            <div class="pet-actions">
+              <a href="index.html" class="voltar-btn">← Voltar</a>
+            </div>
+          </div>
+        </article>
       `;
-    } else {
-      container.innerHTML = `
+      } else {
+        container.innerHTML = `
         <p>Pet não encontrado. Volte à página anterior e tente novamente.</p>
         <a href="index.html" class="voltar-btn">← Voltar</a>
       `;
-    }
-  </script>
-
-</body>
+      }
+    </script>
+  </body>
 </html>
