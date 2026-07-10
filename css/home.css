@@ -316,22 +316,24 @@ button:disabled {
    CARROSSEL
 ========================= */
 
+
 .carousel-section {
-  max-width: 1100px;
-  margin: 2rem auto 0;
-  padding: 0 1rem;
+  max-width: 1200px;       /* aumentei a largura máxima */
+  margin: 1rem auto 0;
+  padding: 0 2rem;
 }
 
 #carousel_info {
-  max-width: 920px;
+  max-width: 1200px;       /* aumentei a largura */
   margin: 0 auto;
 }
 
 #carousel_info .carousel-inner {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  aspect-ratio: 16 / 7;
-  max-height: 360px;
+  aspect-ratio: 16 / 9;
+  max-height: 2000px;       /* altura moderada */
+  max-width: 1100px;       /* largura confortável */
   background:
     radial-gradient(circle at 20% 20%, #fff7f2 0%, #fff 45%),
     linear-gradient(135deg, #fff8f1 0%, #ffffff 55%, #fff3e8 100%);
@@ -341,42 +343,37 @@ button:disabled {
 
 #carousel_info .carousel-item,
 #carousel_info .carousel-item img {
+  width: 100%;
   height: 100%;
 }
 
-#carousel_info .carousel-item {
-  background: transparent;
+#carousel_info .carousel-item img {
+  object-fit: contain;     /* mostra a imagem inteira no desktop */
+  object-position: center;
+  display: block;
 }
-
 #carousel_info .carousel-item img {
   width: 100%;
-  object-fit: contain;
+  height: auto;          /* altura automática para não cortar */
+  max-height: 920px;     /* limite de altura */
+  object-fit: contain;   /* mostra a imagem inteira */
   object-position: center;
   display: block;
 }
 
-#carousel_info .carousel-control-prev,
-#carousel_info .carousel-control-next {
-  width: 11%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  transform: none;
+
+/* RESPONSIVO - MOBILE */
+@media (max-width: 768px) {
+  #carousel_info .carousel-inner {
+    max-height: 280px;     /* reduz altura no celular */
+  }
+
+  #carousel_info .carousel-item img {
+    object-fit: cover;     /* preenche sem sobras no mobile */
+  }
 }
 
-#carousel_info .carousel-control-prev:hover,
-#carousel_info .carousel-control-next:hover {
-  background: rgba(255, 117, 26, 0.08);
-  box-shadow: none;
-  transform: none;
-}
 
-#carousel_info .carousel-control-prev-icon,
-#carousel_info .carousel-control-next-icon {
-  width: 2rem;
-  height: 2rem;
-}
 
 /* =========================
    SOBRE
