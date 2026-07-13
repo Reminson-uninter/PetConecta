@@ -227,6 +227,7 @@ if (novaImagem) {
 
 function finalizarEdicao() {
   localStorage.setItem("pets", JSON.stringify(listaPets));
+  localStorage.setItem("ocorrenciasPets", JSON.stringify(listaPets));
   alert("Pet atualizado com sucesso!");
   window.location.href = "cadastrados.html";
 }

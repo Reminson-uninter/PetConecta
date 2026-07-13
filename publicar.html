@@ -84,6 +84,15 @@
         </div>
 
         <div>
+          <label for="porte">Porte:</label>
+          <select id="porte" name="porte" required>
+            <option value="Pequeno">Pequeno</option>
+            <option value="Médio">Médio</option>
+            <option value="Grande">Grande</option>
+          </select>
+        </div>
+
+        <div>
           <label for="idade">Idade estimada:</label>
           <input type="text" id="idade" name="idade" required />
         </div>
@@ -134,6 +143,14 @@
     </footer>
 
     <script>
+      // Verificar se o usuário está logado
+      const usuarioLogadoStr = localStorage.getItem("usuarioLogado");
+      if (!usuarioLogadoStr) {
+        localStorage.setItem("destinoAposLogin", "publicar.html");
+        alert("Você precisa estar logado para cadastrar um pet.");
+        window.location.href = "criar-conta.html";
+      }
+
       // Menu responsivo
       const btnMobile = document.querySelector("#btn-mobile");
       btnMobile.addEventListener("click", () => {
@@ -212,6 +229,8 @@
       form.addEventListener("submit", function (e) {
         e.preventDefault();
 
+        const usuarioLogado = usuarioLogadoStr ? JSON.parse(usuarioLogadoStr) : null;
+
         const pet = {
           id: "pet-" + Date.now(),
           nome: document.getElementById("nome").value.trim(),
@@ -220,6 +239,7 @@
           raca: document.getElementById("tipo").value,
           tipo: document.getElementById("tipo").value,
           sexo: document.getElementById("sexo").value,
+          porte: document.getElementById("porte").value,
           idade: document.getElementById("idade").value.trim(),
           data: document.getElementById("data").value,
           contato: document.getElementById("contato").value.trim(),
@@ -228,6 +248,7 @@
           lat: parseFloat(document.getElementById("lat").value),
           lng: parseFloat(document.getElementById("lng").value),
           status: "desaparecido",
+          usuarioCriador: usuarioLogado ? usuarioLogado.usuario : null
         };
 
         const imagemInput = document.getElementById("imagem").files[0];
@@ -245,13 +266,13 @@
       });
 
       function salvarPet(pet) {
-        const ocorrenciasPets =
-          JSON.parse(localStorage.getItem("ocorrenciasPets")) || [];
-        ocorrenciasPets.push(pet);
-        localStorage.setItem(
-          "ocorrenciasPets",
-          JSON.stringify(ocorrenciasPets),
-        );
+        // Salva na chave 'pets' (usada em cadastrados.html e editar.html)
+        const pets = JSON.parse(localStorage.getItem("pets")) || [];
+        pets.push(pet);
+        localStorage.setItem("pets", JSON.stringify(pets));
+
+        // Salva na chave 'ocorrenciasPets' (usada para o mapa da página inicial)
+        localStorage.setItem("ocorrenciasPets", JSON.stringify(pets));
 
         alert(`Pet cadastrado com sucesso! Código: ${pet.id}`);
         window.location.href = "cadastrados.html";

@@ -49,6 +49,53 @@ function exibirPets() {
       const nomeMatch = filtroNome === '' || pet.nome.toLowerCase().includes(filtroNome);
       const localMatch = filtroLocalizacao === '' || pet.localiza.toLowerCase().includes(filtroLocalizacao);
       const especieMatch = filtroEspecie === '' || pet.raca.toLowerCase() === filtroEspecie.toLowerCase();
+   Responsável por comportamentos e regras da página/fluxo correspondente. */
+
+function gerarIdPet() {
+  const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
+  let novoId;
+
+  do {
+    novoId = Math.floor(1000 + Math.random() * 9000); // Gera número entre 1000 e 9999
+  } while (listaPets.some(pet => pet.id === novoId)); // Garante que não repita
+
+  return novoId;
+}
+
+function inicializarStatusDosPets() {
+  const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
+  const listaAtualizada = listaPets.map(pet => {
+    if (!pet.status) pet.status = "desaparecido";
+    return pet;
+  });
+  localStorage.setItem('pets', JSON.stringify(listaAtualizada));
+}
+
+let debounceTimer;
+function exibirPets() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
+    const container = document.querySelector('.container-cards');
+    container.innerHTML = '';
+
+    if (listaPets.length === 0) {
+      container.innerHTML = '<p>Nenhum pet cadastrado.</p>';
+      return;
+    }
+
+    // Captura os valores dos filtros
+    const filtroId = document.getElementById('filtro-id').value.trim();
+    const filtroNome = document.getElementById('filtro-nome').value.trim().toLowerCase();
+    const filtroLocalizacao = document.getElementById('filtro-localizacao').value.trim().toLowerCase();
+    const filtroEspecie = document.getElementById('filtro-especie').value;
+
+    // Aplica os filtros
+    const petsFiltrados = listaPets.filter(pet => {
+      const idMatch = filtroId === '' || pet.id.toString().includes(filtroId);
+      const nomeMatch = filtroNome === '' || pet.nome.toLowerCase().includes(filtroNome);
+      const localMatch = filtroLocalizacao === '' || pet.localiza.toLowerCase().includes(filtroLocalizacao);
+      const especieMatch = filtroEspecie === '' || pet.raca.toLowerCase() === filtroEspecie.toLowerCase();
       return idMatch && nomeMatch && localMatch && especieMatch;
     });
 
@@ -71,6 +118,22 @@ function exibirPets() {
       const statusColor = pet.status === 'encontrado' ? 'green' : '#ff6600';
       const statusTexto = pet.status ? pet.status.toUpperCase() : 'DESAPARECIDO';
 
+      // Verificar se o usuário logado é o mesmo que cadastrou
+      const usuarioLogadoStr = localStorage.getItem('usuarioLogado');
+      const usuarioLogado = usuarioLogadoStr ? JSON.parse(usuarioLogadoStr) : null;
+      
+      // Permitimos gerenciar se o usuário logado coincide com o criador.
+      // Se não houver criador (pets antigos), permitimos se o usuário estiver logado.
+      const ehCriador = usuarioLogado && (!pet.usuarioCriador || usuarioLogado.usuario.toLowerCase() === pet.usuarioCriador.toLowerCase());
+
+      let actionsHTML = '';
+      if (ehCriador) {
+        actionsHTML = `
+          <button class="btn editar" onclick="autenticarAcao('editar', '${pet.id}')">✏️ Editar</button>
+          <button class="btn excluir" onclick="autenticarAcao('excluir', '${pet.id}')">🗑️ Excluir</button>
+        `;
+      }
+
       card.innerHTML = `
         <img src="${pet.imagem}" alt="Imagem do pet" style="width:100%; height:auto; border-radius:5px;">
         <h3 style="margin: 5px 0;">${pet.nome}</h3>
@@ -78,9 +141,9 @@ function exibirPets() {
           <strong>Status:</strong> <span style="color:${statusColor};"><strong>${statusTexto}</strong></span>
         </div>
         <p><strong>ID:</strong> ${pet.id}</p>
-      <p><strong>Tipo:</strong> ${pet.raca}</p>
+        <p><strong>Tipo:</strong> ${pet.raca}</p>
         <p><strong>Sexo:</strong> ${pet.sexo}</p>
-        
+        ${pet.porte ? `<p><strong>Porte:</strong> ${pet.porte}</p>` : ''}
         <p><strong>Última localização:</strong> ${pet.localiza}</p>
         <p><strong>Data:</strong> ${pet.data}</p>
         <p><strong>Contato:</strong> ${pet.contato}</p>
@@ -93,8 +156,7 @@ function exibirPets() {
         ${pet.recompensa ? `<p style="color: green;"><strong>🎁 Recompensa:</strong> ${pet.recompensa}</p>` : ''}
         <p><strong>Descrição:</strong> ${pet.descricao}</p>
         <div class="actions" style="display: flex; gap: 5px; margin-top: 10px;">
-          <button class="btn editar" onclick="autenticarAcao('editar', ${pet.id})">✏️ Editar</button>
-          <button class="btn excluir" onclick="autenticarAcao('excluir', ${pet.id})">🗑️ Excluir</button>
+          ${actionsHTML}
         </div>
       `;
 
@@ -112,7 +174,7 @@ function exibirPets() {
       });
       actionsDiv.appendChild(saibaMaisBtn);
 
-      if (pet.status !== 'encontrado') {
+      if (ehCriador && pet.status !== 'encontrado') {
         const encontrouBtn = document.createElement('button');
         encontrouBtn.textContent = 'Encontrei';
         encontrouBtn.className = 'btn-encontrou';
@@ -140,15 +202,30 @@ function exibirPets() {
 
 function autenticarAcao(acao, id) {
   const usuarioSalvo = JSON.parse(localStorage.getItem('usuarioLogado'));
-  const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
+  if (!usuarioSalvo) {
+    alert("Você precisa estar logado para realizar esta ação.");
+    window.location.href = 'criar-conta.html';
+    return;
+  }
 
-  const usuario = prompt("Digite seu usuário:").trim().toLowerCase();
+  const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
+  const pet = listaPets.find(p => p.id.toString() === id.toString());
+
+  if (!pet) {
+    alert("Pet não encontrado.");
+    return;
+  }
+
+  // Verificar se é o tutor que cadastrou o pet originalmente
+  if (pet.usuarioCriador && usuarioSalvo.usuario.toLowerCase() !== pet.usuarioCriador.toLowerCase()) {
+    alert("Apenas a pessoa que cadastrou este pet pode realizar esta ação.");
+    return;
+  }
+
+  const usuario = prompt("Para confirmar, digite seu usuário:").trim().toLowerCase();
   const senha = prompt("Digite sua senha:").trim();
 
   if (
-    !usuarioSalvo ||
-    !usuarioSalvo.usuario ||
-    !usuarioSalvo.senha ||
     usuario !== usuarioSalvo.usuario.toLowerCase() ||
     senha !== usuarioSalvo.senha
   ) {
@@ -163,6 +240,7 @@ function autenticarAcao(acao, id) {
     if (!confirm("Tem certeza que deseja excluir este pet?")) return;
     const novaLista = listaPets.filter(p => p.id.toString() !== id.toString());
     localStorage.setItem('pets', JSON.stringify(novaLista));
+    localStorage.setItem('ocorrenciasPets', JSON.stringify(novaLista));
     alert("Pet excluído com sucesso!");
     exibirPets();
   } else if (acao === 'encontrei') {
@@ -172,7 +250,7 @@ function autenticarAcao(acao, id) {
 
 function marcarComoEncontrado(id) {
   const listaPets = JSON.parse(localStorage.getItem('pets')) || [];
-  const index = listaPets.findIndex(p => p.id === id);
+  const index = listaPets.findIndex(p => p.id.toString() === id.toString());
   if (index === -1) {
     alert("Pet não encontrado.");
     return;
@@ -180,6 +258,7 @@ function marcarComoEncontrado(id) {
 
   listaPets[index].status = "encontrado";
   localStorage.setItem('pets', JSON.stringify(listaPets));
+  localStorage.setItem('ocorrenciasPets', JSON.stringify(listaPets));
   alert("Status atualizado para ENCONTRADO!");
   exibirPets();
 }
