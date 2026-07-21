@@ -1,40 +1,57 @@
-/* Arquivo de script: exibir_pets.js
-   Responsável pela lógica e comportamento desta funcionalidade/página. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-/* Arquivo JS: exibir_pets.js
-   Responsável por comportamentos e regras da página/fluxo correspondente. */
+// Configuração do seu projeto PetConecta
+const firebaseConfig = {
+  apiKey: "AIzaSyBpbc3GPkPHzN78cgXQsZWJ8ayzdiIdUYY",
+  authDomain: "petconecta-db068.firebaseapp.com",
+  projectId: "petconecta-db068",
+  storageBucket: "petconecta-db068.firebasestorage.app",
+  messagingSenderId: "1030110038715",
+  appId: "1:1030110038715:web:151deca61831138159b79e"
+};
 
-function obterListaPets() {
-  const petsLocal = JSON.parse(localStorage.getItem("pets")) || [];
-  const petsOcorrencias = JSON.parse(localStorage.getItem("ocorrenciasPets")) || [];
-  const petsSession = JSON.parse(sessionStorage.getItem("pets")) || [];
+// Inicialização do Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Variável global na memória para guardar os pets ativos carregados do Firestore
+let listaPetsFirestore = [];
+
+// Escuta ativa no Firestore (substitui 'obterListaPets' e o evento 'storage')
+onSnapshot(collection(db, "pets"), (snapshot) => {
+  listaPetsFirestore = snapshot.docs.map((doc) => {
+    const pet = doc.data();
+    return {
+      id: doc.id,
+      nome: pet.nome || pet.nomePet || "Sem nome",
+      localiza: pet.localiza || pet.localizacao || "Não informada",
+      raca: pet.raca || pet.tipo || pet.tipoPet || "Não informada",
+      tipo: pet.tipo || pet.tipoPet || pet.raca || "Não informado",
+      sexo: pet.sexo || pet.sexoPet || "Não informado",
+      porte: pet.porte || pet.portePet || "Não informado",
+      data: pet.data || "Não informada",
+      contato: pet.contato || pet.whatsapp || "Não informado",
+      whatsapp: pet.whatsapp || pet.contato || "",
+      descricao: pet.descricao || pet.descricaoPet || "Não informada",
+      imagem: pet.imagem || pet.fotoPet || "",
+      status: pet.status || "desaparecido",
+      usuarioCriador: pet.usuarioCriador || null
+    };
+  });
   
-  // Procura primeiro em 'pets', depois em 'ocorrenciasPets', depois na sessão
-  const origem = petsLocal.length > 0 ? petsLocal : (petsOcorrencias.length > 0 ? petsOcorrencias : petsSession);
+  // Renderiza a galeria sempre que houver mudanças no Firestore
+  exibirPets();
+});
 
-  return origem.map((pet) => ({
-    id: pet.id,
-    nome: pet.nome || pet.nomePet || "Sem nome",
-    localiza: pet.localiza || pet.localizacao || "Não informada",
-    raca: pet.raca || pet.tipo || pet.tipoPet || "Não informada",
-    tipo: pet.tipo || pet.tipoPet || pet.raca || "Não informado",
-    sexo: pet.sexo || "Não informado",
-    porte: pet.porte || "Não informado",
-    data: pet.data || "Não informada",
-    contato: pet.contato || pet.whatsapp || "Não informado",
-    whatsapp: pet.whatsapp || pet.contato || "",
-    descricao: pet.descricao || pet.descricaoPet || "Não informada",
-    imagem: pet.imagem || pet.fotoPet || "",
-  }));
-}
-
-function exibirPets() {
+window.exibirPets = function exibirPets() {
   const galeria = document.querySelector(".container-cards");
   if (!galeria) return;
 
   galeria.innerHTML = "";
 
-  const listaPets = obterListaPets();
+  // Agora lemos direto da nossa variável sincronizada com o Firebase
+  const listaPets = listaPetsFirestore;
 
   // Filtros de texto/compatibilidade
   const campoNome = document.getElementById("filtro-nome");
@@ -88,8 +105,7 @@ function exibirPets() {
     if (listaPets.length === 0) {
       galeria.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
     } else {
-      galeria.innerHTML =
-        "<p>Nenhum pet encontrado com os filtros aplicados.</p>";
+      galeria.innerHTML = "<p>Nenhum pet encontrado com os filtros aplicados.</p>";
     }
     return;
   }
@@ -108,16 +124,68 @@ function exibirPets() {
       </p>
     ` : `<p><strong>Contato:</strong> ${pet.contato}</p>`;
 
+    const statusColor = pet.status === 'encontrado' ? 'green' : '#ff6600';
+    const statusTexto = pet.status ? pet.status.toUpperCase() : 'DESAPARECIDO';
+
+    const usuarioLogadoStr = localStorage.getItem('usuarioLogado');
+    const usuarioLogado = usuarioLogadoStr ? JSON.parse(usuarioLogadoStr) : null;
+    const ehCriador = usuarioLogado && (!pet.usuarioCriador || usuarioLogado.usuario.toLowerCase() === pet.usuarioCriador.toLowerCase());
+
+    let actionsHTML = '';
+    if (ehCriador) {
+      actionsHTML = `
+        <button class="btn editar" onclick="window.autenticarAcao('editar', '${pet.id}', '${pet.usuarioCriador}')">✏️ Editar</button>
+        <button class="btn excluir" onclick="window.autenticarAcao('excluir', '${pet.id}', '${pet.usuarioCriador}')">🗑️ Excluir</button>
+      `;
+    }
+
     bloco.innerHTML = `
       <img src="${pet.imagem}" alt="${pet.nome}" class="pet-image" onerror="this.src='https://via.placeholder.com/150'">
       <h3>${pet.nome}</h3>
+      <div class="sumido">
+        <strong>Status:</strong> <span style="color:${statusColor};"><strong>${statusTexto}</strong></span>
+      </div>
       <p><strong>Última localização:</strong> ${pet.localiza}</p>
       <p><strong>Espécie:</strong> ${pet.raca}</p>
       ${pet.porte && pet.porte !== "Não informado" ? `<p><strong>Porte:</strong> ${pet.porte}</p>` : ""}
       <p><strong>Data:</strong> ${pet.data}</p>
       ${whatsappLink}
       <p><strong>Descrição:</strong> ${pet.descricao || "Não informada"}</p>
+      <div class="actions" style="display: flex; gap: 5px; margin-top: 10px;">
+        ${actionsHTML}
+      </div>
     `;
+
+    const actionsDiv = bloco.querySelector('.actions');
+    const saibaMaisBtn = document.createElement('button');
+    saibaMaisBtn.textContent = 'Saiba Mais';
+    saibaMaisBtn.className = 'btn-saiba-mais';
+    saibaMaisBtn.style.flex = '1';
+    saibaMaisBtn.style.borderRadius = '5px';
+    saibaMaisBtn.style.cursor = 'pointer';
+    saibaMaisBtn.style.fontSize = '10px';
+    saibaMaisBtn.addEventListener('click', () => {
+      window.location.href = `detalhes.html?id=${pet.id}`;
+    });
+    actionsDiv.appendChild(saibaMaisBtn);
+
+    if (ehCriador && pet.status !== 'encontrado') {
+      const encontrouBtn = document.createElement('button');
+      encontrouBtn.textContent = 'Encontrei';
+      encontrouBtn.className = 'btn-encontrou';
+      encontrouBtn.style.flex = '1';
+      encontrouBtn.style.backgroundColor = '#4CAF50';
+      encontrouBtn.style.color = '#fff';
+      encontrouBtn.style.border = 'none';
+      encontrouBtn.style.borderRadius = '5px';
+      encontrouBtn.style.cursor = 'pointer';
+      encontrouBtn.style.fontSize = '10px';
+      encontrouBtn.addEventListener('click', () => {
+        window.autenticarAcao('encontrei', pet.id, pet.usuarioCriador);
+      });
+      actionsDiv.appendChild(encontrouBtn);
+    }
+
     galeria.appendChild(bloco);
   });
 }
@@ -156,10 +224,14 @@ function configurarFiltrosDesaparecidos() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Inicializações básicas
+function inicializar() {
   configurarBotaoCadastro();
   configurarFiltrosDesaparecidos();
-  exibirPets();
-});
+}
 
-window.addEventListener("storage", exibirPets);
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", inicializar);
+} else {
+  inicializar();
+}

@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PetFinder - Cadastro de Pet</title>
+    <title>PetConecta - Cadastro de Pet</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins&display=swap"
       rel="stylesheet"
@@ -20,15 +20,15 @@
   <body>
     <!-- Cabeçalho -->
     <header id="cabeca">
-      <h1 id="logo">🐾 PetFinder</h1>
+      <h1 id="logo">🐾 PetConecta</h1>
       <nav id="nav-menu">
         <button id="btn-mobile">Menu <span id="hamburguer"></span></button>
+        <!-- Este menu será renderizado dinamicamente pelo Firebase Auth -->
         <ul id="menu">
           <li><a href="index.html">Página Inicial</a></li>
           <li><a href="animais_encontra.html">Encontrados</a></li>
           <li><a href="adocao.html">Adoção</a></li>
           <li><a href="dicas.html">Dicas</a></li>
-          <li><a href="cadastrados.html">Pets Cadastrados</a></li>
           <li><a href="contato.html">Contato</a></li>
         </ul>
       </nav>
@@ -134,72 +134,128 @@
 
     <footer>
       <div style="max-width: 1000px; margin: auto">
-        <h3>🐶 PetFinder</h3>
+        <h3>🐶 PetConecta</h3>
         <p>Conectando pets incríveis a lares amorosos 💕</p>
         <p style="font-size: 14px">
-          © 2025 PetFinder. Todos os direitos reservados.
+          © 2026 PetConecta. Todos os direitos reservados.
         </p>
       </div>
     </footer>
 
-    <script>
-      // Verificar se o usuário está logado
-      const usuarioLogadoStr = localStorage.getItem("usuarioLogado");
-      if (!usuarioLogadoStr) {
-        localStorage.setItem("destinoAposLogin", "publicar.html");
-        alert("Você precisa estar logado para cadastrar um pet.");
-        window.location.href = "criar-conta.html";
-      }
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+      import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-      // Menu responsivo
-      const btnMobile = document.querySelector("#btn-mobile");
-      btnMobile.addEventListener("click", () => {
-        document.querySelector("#nav-menu").classList.toggle("active");
+      const firebaseConfig = {
+        apiKey: "AIzaSyBpbc3GPkPHzN78cgXQsZWJ8ayzdiIdUYY",
+        authDomain: "petconecta-db068.firebaseapp.com",
+        projectId: "petconecta-db068",
+        storageBucket: "petconecta-db068.firebasestorage.app",
+        messagingSenderId: "1030110038715",
+        appId: "1:1030110038715:web:151deca61831138159b79e"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      let usuarioLogado = null;
+
+      // 🔐 Monitora o estado de Login e monta o menu de forma segura
+      onAuthStateChanged(auth, (user) => {
+        const menu = document.getElementById("menu");
+        if (!menu) return;
+
+        const linksBase = `
+          <li><a href="index.html">Página Inicial</a></li>
+          <li><a href="animais_encontra.html">Encontrados</a></li>
+          <li><a href="adocao.html">Adoção</a></li>
+          <li><a href="dicas.html">Dicas</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        `;
+
+        if (user) {
+          usuarioLogado = user;
+          const nomeExibicao = user.displayName || user.email.split('@')[0];
+          
+          // Exibe "Meus Pets" apenas se estiver logado
+          menu.innerHTML = `
+            ${linksBase}
+            <li><a href="cadastrados.html">Meus Pets</a></li>
+            <li><span style="color: #ff914d; font-weight: bold; margin-left: 10px;">Olá, ${nomeExibicao}!</span></li>
+            <li><a href="#" id="btn-logout" style="color: #ff3333; font-weight: bold; text-decoration: none;">Sair</a></li>
+          `;
+
+          const btnLogout = document.getElementById("btn-logout");
+          if (btnLogout) {
+            btnLogout.addEventListener("click", (e) => {
+              e.preventDefault();
+              signOut(auth).then(() => {
+                localStorage.removeItem("usuarioLogado");
+                window.location.reload();
+              });
+            });
+          }
+        } else {
+          // Se não estiver logado, bloqueia a página e redireciona
+          localStorage.setItem("destinoAposLogin", "publicar.html");
+          alert("Você precisa estar logado para cadastrar um pet.");
+          window.location.href = "criar-conta.html";
+        }
       });
 
-      // Mapa interativo
+      // Menu responsivo mobile
+      const btnMobile = document.querySelector("#btn-mobile");
+      if (btnMobile) {
+        btnMobile.addEventListener("click", () => {
+          document.querySelector("#nav-menu").classList.toggle("active");
+        });
+      }
+
+      // Mapa interativo (Leaflet)
       const map = L.map("map").setView([-14.235, -51.9253], 4);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
       }).addTo(map);
 
       let marker;
-      
-      // Geocodificação ao digitar o endereço
       const campoLocalizacao = document.getElementById("localizacao");
       
-      campoLocalizacao.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          this.blur();
-        }
-      });
+      if (campoLocalizacao) {
+        campoLocalizacao.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            this.blur();
+          }
+        });
 
-      campoLocalizacao.addEventListener("change", function () {
-        const query = this.value.trim();
-        if (!query) return;
+        campoLocalizacao.addEventListener("change", function () {
+          const query = this.value.trim();
+          if (!query) return;
 
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.length > 0) {
-              const lat = parseFloat(data[0].lat);
-              const lon = parseFloat(data[0].lon);
-              const latlng = L.latLng(lat, lon);
+          fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                const latlng = L.latLng(lat, lon);
 
-              if (marker) {
-                marker.setLatLng(latlng);
-              } else {
-                marker = L.marker(latlng).addTo(map);
+                if (marker) {
+                  marker.setLatLng(latlng);
+                } else {
+                  marker = L.marker(latlng).addTo(map);
+                }
+                map.setView(latlng, 15);
+
+                document.getElementById("lat").value = lat;
+                document.getElementById("lng").value = lon;
               }
-              map.setView(latlng, 15);
-
-              document.getElementById("lat").value = lat;
-              document.getElementById("lng").value = lon;
-            }
-          })
-          .catch((err) => console.error("Erro na geocodificação:", err));
-      });
+            })
+            .catch((err) => console.error("Erro na geocodificação:", err));
+        });
+      }
 
       map.on("click", function (e) {
         const lat = e.latlng.lat;
@@ -214,9 +270,7 @@
         document.getElementById("lat").value = lat;
         document.getElementById("lng").value = lng;
 
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
-        )
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
           .then((res) => res.json())
           .then((data) => {
             document.getElementById("localizacao").value =
@@ -224,58 +278,60 @@
           });
       });
 
-      // Cadastro e salvamento
+      // Processamento e Cadastro
       const form = document.getElementById("form-container");
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
 
-        const usuarioLogado = usuarioLogadoStr ? JSON.parse(usuarioLogadoStr) : null;
+          if (!usuarioLogado) {
+            alert("Erro: Você precisa estar autenticado para realizar esta ação.");
+            return;
+          }
 
-        const pet = {
-          id: "pet-" + Date.now(),
-          nome: document.getElementById("nome").value.trim(),
-          localiza: document.getElementById("localizacao").value.trim(),
-          localizacao: document.getElementById("localizacao").value.trim(),
-          raca: document.getElementById("tipo").value,
-          tipo: document.getElementById("tipo").value,
-          sexo: document.getElementById("sexo").value,
-          porte: document.getElementById("porte").value,
-          idade: document.getElementById("idade").value.trim(),
-          data: document.getElementById("data").value,
-          contato: document.getElementById("contato").value.trim(),
-          whatsapp: document.getElementById("whatsapp").value.trim(),
-          descricao: document.getElementById("descricao").value.trim(),
-          lat: parseFloat(document.getElementById("lat").value),
-          lng: parseFloat(document.getElementById("lng").value),
-          status: "desaparecido",
-          usuarioCriador: usuarioLogado ? usuarioLogado.usuario : null
-        };
-
-        const imagemInput = document.getElementById("imagem").files[0];
-        if (imagemInput) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            pet.imagem = e.target.result;
-            salvarPet(pet);
+          const pet = {
+            nome: document.getElementById("nome").value.trim(),
+            localiza: document.getElementById("localizacao").value.trim(),
+            localizacao: document.getElementById("localizacao").value.trim(),
+            raca: document.getElementById("tipo").value,
+            tipo: document.getElementById("tipo").value,
+            sexo: document.getElementById("sexo").value,
+            porte: document.getElementById("porte").value,
+            idade: document.getElementById("idade").value.trim(),
+            data: document.getElementById("data").value,
+            contato: document.getElementById("contato").value.trim(),
+            whatsapp: document.getElementById("whatsapp").value.trim(),
+            descricao: document.getElementById("descricao").value.trim(),
+            lat: parseFloat(document.getElementById("lat").value) || null,
+            lng: parseFloat(document.getElementById("lng").value) || null,
+            status: "desaparecido",
+            usuarioCriador: usuarioLogado.email // Usa o e-mail real da sessão ativa do Firebase
           };
-          reader.readAsDataURL(imagemInput);
-        } else {
-          pet.imagem = "";
-          salvarPet(pet);
+
+          const imagemInput = document.getElementById("imagem").files[0];
+          if (imagemInput) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              pet.imagem = e.target.result;
+              salvarPet(pet);
+            };
+            reader.readAsDataURL(imagemInput);
+          } else {
+            pet.imagem = "";
+            salvarPet(pet);
+          }
+        });
+      }
+
+      async function salvarPet(pet) {
+        try {
+          await addDoc(collection(db, "pets"), pet);
+          alert(`Pet cadastrado com sucesso!`);
+          window.location.href = "index.html"; // Redireciona para a Home onde ele já será listado reativamente!
+        } catch (error) {
+          console.error("Erro ao salvar no Firestore: ", error);
+          alert("Ocorreu um erro ao salvar o pet. Verifique se o Cloud Firestore foi inicializado no console.");
         }
-      });
-
-      function salvarPet(pet) {
-        // Salva na chave 'pets' (usada em cadastrados.html e editar.html)
-        const pets = JSON.parse(localStorage.getItem("pets")) || [];
-        pets.push(pet);
-        localStorage.setItem("pets", JSON.stringify(pets));
-
-        // Salva na chave 'ocorrenciasPets' (usada para o mapa da página inicial)
-        localStorage.setItem("ocorrenciasPets", JSON.stringify(pets));
-
-        alert(`Pet cadastrado com sucesso! Código: ${pet.id}`);
-        window.location.href = "cadastrados.html";
       }
     </script>
   </body>
