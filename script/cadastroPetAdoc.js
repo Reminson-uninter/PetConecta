@@ -1,165 +1,87 @@
-/* Arquivo de script: cadastroPetAdoc.js
-   Responsável pela lógica e comportamento desta funcionalidade/página. */
+// Importações necessárias (usando npm ou tags de script correspondentes)
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
-/* Arquivo JS: cadastroPetAdoc.js
-   Responsável por comportamentos e regras da página/fluxo correspondente. */
+// Configuração do seu projeto PetConecta
+const firebaseConfig = {
+  projectId: "petconecta-db068",
+  // Adicione aqui as demais chaves do console (apiKey, authDomain, storageBucket, etc.)
+};
 
-// Ao carregar a página, exibe os pets salvos
+// Inicialização
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Escuta os pets em tempo real no Firestore
 window.addEventListener('DOMContentLoaded', () => {
-  const dadosSalvos = JSON.parse(localStorage.getItem('dadosPet')) || [];
-  exibirPets(dadosSalvos);
+  onSnapshot(collection(db, "pets"), (snapshot) => {
+    const pets = [];
+    snapshot.forEach(doc => {
+      pets.push({ id: doc.id, ...doc.data() });
+    });
+    exibirPets(pets);
+  });
 });
 
-// Cadastro de pet
-document.getElementById('cadastroPet').addEventListener('submit', function(event) {
+// Cadastro e Upload de Foto
+document.getElementById('cadastroPet').addEventListener('submit', async function(event) {
   event.preventDefault();
 
   const dados = new FormData(event.target);
-  const dadosObj = {
-    id: 'pet-' + Date.now(),
-    nomePet: dados.get('nomePet'),
-    idadePet: dados.get('idadePet'),
-    tipoPet: dados.get('tipoPet'),
-    racaPet: dados.get('racaPet'),
-    sexoPet: dados.get('sexoPet'),
-    portePet: dados.get('portePet'),
-    descricaoPet: dados.get('descricaoPet'),
-    vacinaPet: dados.get('vacinaPet') ? true : false,
-    castradoPet: dados.get('castradoPet') ? true : false
-  };
-
   const arquivoFoto = dados.get('fotoPet');
 
-  if (
-    !dadosObj.nomePet || !dadosObj.idadePet || !dadosObj.tipoPet ||
-    !dadosObj.racaPet || !dadosObj.sexoPet || !dadosObj.portePet ||
-    !arquivoFoto || !dadosObj.descricaoPet
-  ) {
-    alert('Por favor, preencha todos os campos obrigatórios.');
+  if (!arquivoFoto || !arquivoFoto.type.startsWith('image/')) {
+    alert('Por favor, envie uma imagem válida.');
     return;
   }
 
-  if (!arquivoFoto.type.startsWith('image/')) {
-    alert('Por favor, envie uma imagem válida do pet.');
-    return;
-  }
+  try {
+    // 1. Upload da foto para o Cloud Storage
+    const nomeArquivo = `pets/${Date.now()}_${arquivoFoto.name}`;
+    const storageRef = ref(storage, nomeArquivo);
+    const uploadResult = await uploadBytes(storageRef, arquivoFoto);
+    const urlFoto = await getDownloadURL(uploadResult.ref);
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    dadosObj.fotoPet = e.target.result;
+    // 2. Salva o documento no Firestore
+    const dadosObj = {
+      nomePet: dados.get('nomePet'),
+      idadePet: dados.get('idadePet'),
+      tipoPet: dados.get('tipoPet'),
+      racaPet: dados.get('racaPet'),
+      sexoPet: dados.get('sexoPet'),
+      portePet: dados.get('portePet'),
+      descricaoPet: dados.get('descricaoPet'),
+      vacinaPet: !!dados.get('vacinaPet'),
+      castradoPet: !!dados.get('castradoPet'),
+      fotoPet: urlFoto, // URL pública da foto
+      caminhoFotoStorage: nomeArquivo // Guardamos para deletar depois
+    };
 
-    const pets = JSON.parse(localStorage.getItem('dadosPet')) || [];
-    pets.push(dadosObj);
-    localStorage.setItem('dadosPet', JSON.stringify(pets));
-
+    await addDoc(collection(db, "pets"), dadosObj);
     document.getElementById('mensagem-sucesso').style.display = 'block';
     event.target.reset();
-
-    console.log('Pet cadastrado:', dadosObj);
-
-    // Atualiza galeria sem recarregar
-    exibirPets(pets);
-  };
-
-  reader.readAsDataURL(arquivoFoto);
+  } catch (error) {
+    console.error("Erro ao cadastrar pet:", error);
+    alert("Erro ao salvar os dados.");
+  }
 });
 
-// Exibe os pets cadastrados
-function exibirPets(pets) {
-  const galeria = document.getElementById('galeriaPets');
-  galeria.innerHTML = '';
-
-  if (pets.length === 0) {
-    galeria.innerHTML = '<p>Nenhum pet cadastrado ainda.</p>';
-    return;
+// Excluir pet (Firestore + Storage)
+async function excluirPet(id, caminhoFotoStorage) {
+  if (confirm("Deseja realmente excluir este pet?")) {
+    try {
+      // Deleta o documento do banco
+      await deleteDoc(doc(db, "pets", id));
+      
+      // Deleta a foto do storage
+      if (caminhoFotoStorage) {
+        const fotoRef = ref(storage, caminhoFotoStorage);
+        await deleteObject(fotoRef);
+      }
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
+    }
   }
-
-  pets.forEach(pet => {
-    const card = document.createElement('div');
-    card.classList.add('pet-card');
-    card.style.width = '220px';
-    card.style.margin = '10px';
-    card.style.padding = '10px';
-    card.style.border = '1px solid #ccc';
-    card.style.borderRadius = '8px';
-    card.style.boxShadow = '0 0 6px rgba(0,0,0,0.1)';
-    card.style.display = 'inline-block';
-    card.style.verticalAlign = 'top';
-    card.style.backgroundColor = '#fff';
-    card.style.textAlign = 'center';
-
-    const img = document.createElement('img');
-    img.src = pet.fotoPet;
-    img.alt = `Foto de ${pet.nomePet}`;
-    img.style.width = '100%';
-    img.style.height = '140px';
-    img.style.objectFit = 'cover';
-    img.style.borderRadius = '6px';
-
-    const info = document.createElement('div');
-    info.innerHTML = `
-      <p><strong>ID:</strong> ${pet.id}</p>
-      <h3>${pet.nomePet}</h3>
-      <p><strong>Tipo:</strong> ${pet.tipoPet}</p>
-      <p><strong>Raça:</strong> ${pet.racaPet}</p>
-      <p><strong>Sexo:</strong> ${pet.sexoPet}</p>
-      <p><strong>Porte:</strong> ${pet.portePet}</p>
-      <p><strong>Vacinado:</strong> ${pet.vacinaPet ? 'Sim' : 'Não'}</p>
-      <p><strong>Castrado:</strong> ${pet.castradoPet ? 'Sim' : 'Não'}</p>
-    `;
-
-    const btnEditar = document.createElement('button');
-    btnEditar.textContent = '✏️ Editar';
-    btnEditar.style.margin = '5px';
-    btnEditar.style.backgroundColor = '#4CAF50';
-    btnEditar.style.color = '#fff';
-    btnEditar.style.border = 'none';
-    btnEditar.style.borderRadius = '4px';
-    btnEditar.style.padding = '6px 10px';
-    btnEditar.onclick = () => editarPet(pet.id);
-
-    const btnExcluir = document.createElement('button');
-    btnExcluir.textContent = '🗑️ Excluir';
-    btnExcluir.style.margin = '5px';
-    btnExcluir.style.backgroundColor = '#f44336';
-    btnExcluir.style.color = '#fff';
-    btnExcluir.style.border = 'none';
-    btnExcluir.style.borderRadius = '4px';
-    btnExcluir.style.padding = '6px 10px';
-    btnExcluir.onclick = () => excluirPet(pet.id);
-
-    card.appendChild(img);
-    card.appendChild(info);
-    card.appendChild(btnEditar);
-    card.appendChild(btnExcluir);
-    galeria.appendChild(card);
-  });
-}
-
-// Excluir pet
-function excluirPet(id) {
-  const pets = JSON.parse(localStorage.getItem('dadosPet')) || [];
-  const atualizados = pets.filter(pet => pet.id !== id);
-  localStorage.setItem('dadosPet', JSON.stringify(atualizados));
-  exibirPets(atualizados);
-}
-
-// Editar pet (simples: preenche o formulário e remove o antigo)
-function editarPet(id) {
-  const pets = JSON.parse(localStorage.getItem('dadosPet')) || [];
-  const pet = pets.find(p => p.id === id);
-  if (!pet) return;
-
-  document.querySelector('[name="nomePet"]').value = pet.nomePet;
-  document.querySelector('[name="idadePet"]').value = pet.idadePet;
-  document.querySelector('[name="tipoPet"]').value = pet.tipoPet;
-  document.querySelector('[name="racaPet"]').value = pet.racaPet;
-  document.querySelector('[name="sexoPet"]').value = pet.sexoPet;
-  document.querySelector('[name="portePet"]').value = pet.portePet;
-  document.querySelector('[name="descricaoPet"]').value = pet.descricaoPet;
-  document.querySelector('[name="vacinaPet"]').checked = pet.vacinaPet;
-  document.querySelector('[name="castradoPet"]').checked = pet.castradoPet;
-
-  const atualizados = pets.filter(p => p.id !== id);
-  localStorage.setItem('dadosPet', JSON.stringify(atualizados));
 }

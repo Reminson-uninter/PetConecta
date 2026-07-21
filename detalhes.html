@@ -1,51 +1,78 @@
 <!doctype html>
-`r`n<!-- Arquivo HTML: detalhes.html | Estrutura e conteúdo da página correspondente. -->
+<!-- Arquivo HTML: detalhes.html | Estrutura e conteúdo da página correspondente. -->
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detalhes do Pet</title>
+    <title>Detalhes do Pet - PetConecta</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/detalhes.css" />
-      <link rel="stylesheet" href="css/buttons-global.css" />`r`n</head>
+    <link rel="stylesheet" href="css/buttons-global.css" />
+  </head>
   <body>
     <header id="cabeca">
-      <h1 id="logo">🐾 PetFinder</h1>
+      <h1 id="logo">🐾 PetConecta</h1>
 
       <nav id="nav-menu">
         <button id="btn-mobile">
           Menu
           <span id="hamburguer"></span>
         </button>
+        <!-- Este menu será sincronizado dinamicamente pelo Firebase Auth -->
         <ul id="menu">
           <li><a href="index.html">Página Inicial</a></li>
           <li><a href="animais_encontra.html">Encontrados</a></li>
           <li><a href="adocao.html">Adoção</a></li>
           <li><a href="dicas.html">Dicas</a></li>
-          <li><a href="cadastrados.html">Pets Cadastrados</a></li>
           <li><a href="contato.html">Contato</a></li>
         </ul>
       </nav>
     </header>
 
     <main>
+      <!-- Detalhes principais do pet -->
       <div class="detalhes-container" id="detalhesPet">
-        <!-- Conteúdo será inserido via JavaScript -->
+        <!-- Conteúdo será inserido via JavaScript do Firebase -->
+      </div>
+
+      <!-- NOVO: Formulário de Registro de Avistamentos (Surgirá reativamente se o pet estiver perdido) -->
+      <div class="detalhes-container" id="secao-avistamentos" style="margin-top: 30px; padding: 25px; display: none; box-sizing: border-box;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; color: #ff6600; font-family: 'Fredoka One', sans-serif;">⚠️ Viu este pet? Reporte um Avistamento!</h3>
+        
+        <form id="form-avistamento">
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #555;">Onde você o viu?</label>
+            <input type="text" id="avistamento-local" placeholder="Ex: Próximo à praça central, rua X" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #555;">Detalhes (ex: cor de coleira, se parecia assustado, direção que correu):</label>
+            <textarea id="avistamento-descricao" rows="3" placeholder="Informações que ajudem o tutor a localizá-lo..." required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: sans-serif; resize: vertical;"></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #555;">Seu E-mail ou Telefone para contato:</label>
+            <input type="text" id="avistamento-contato" placeholder="Para que o tutor possa falar com você para mais detalhes" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+          </div>
+          
+          <button type="submit" id="btn-avistamento" style="width: 100%;">Registrar Avistamento 🐾</button>
+        </form>
       </div>
     </main>
+
     <footer
       style="
         background-color: #ff751a;
         color: white;
         padding: 30px 0;
-        font-family: &quot;Segoe UI&quot;, sans-serif;
+        font-family: 'Segoe UI', sans-serif;
       "
     >
       <div style="max-width: 1000px; margin: auto; text-align: center">
-        <h3 style="margin-bottom: 10px">🐶 PetFinder</h3>
+        <h3 style="margin-bottom: 10px">🐶 PetConecta</h3>
         <p style="margin-bottom: 20px">
           Conectando pets incríveis a lares amorosos 💕
         </p>
@@ -104,62 +131,210 @@
         </nav>
 
         <p style="font-size: 14px">
-          © 2025 PetFinder. Todos os direitos reservados.
+          © 2026 PetConecta. Todos os direitos reservados.
         </p>
       </div>
     </footer>
+
+    <!-- Script de animação do Navbar Mobile -->
     <script>
       const btnMobile = document.querySelector("#btn-mobile");
       function toggleMenu() {
-        const nav = document.querySelector("#nav-menu"); /*pega navegação*/
-        nav.classList.toggle(
-          "active",
-        ); /*toggle ,significa adicione caso não tenha ou remover ,caso tenha */
+        const nav = document.querySelector("#nav-menu");
+        nav.classList.toggle("active");
       }
-      btnMobile.addEventListener("click", toggleMenu);
+      if (btnMobile) {
+        btnMobile.addEventListener("click", toggleMenu);
+      }
+    </script>
 
+    <!-- Script Modular do Firebase -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+      import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+      // Configuração do Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyBpbc3GPkPHzN78cgXQsZWJ8ayzdiIdUYY",
+        authDomain: "petconecta-db068.firebaseapp.com",
+        projectId: "petconecta-db068",
+        storageBucket: "petconecta-db068.firebasestorage.app",
+        messagingSenderId: "1030110038715",
+        appId: "1:1030110038715:web:151deca61831138159b79e"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // --- MENU DE NAVEGAÇÃO DINÂMICO COM AUTH ---
+      onAuthStateChanged(auth, (user) => {
+        const menu = document.getElementById("menu");
+        if (!menu) return;
+
+        const linksBase = `
+          <li><a href="index.html">Página Inicial</a></li>
+          <li><a href="animais_encontra.html">Encontrados</a></li>
+          <li><a href="adocao.html">Adoção</a></li>
+          <li><a href="dicas.html">Dicas</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        `;
+
+        if (user) {
+          const nomeExibicao = user.displayName || user.email.split('@')[0];
+          
+          menu.innerHTML = `
+            ${linksBase}
+            <li><a href="cadastrados.html">Meus Pets</a></li>
+            <!-- Correção de contraste: tom creme do rodapé e alinhamento visual de menu -->
+            <li style="display: inline-block; padding: 8px 12px; font-weight: bold; color: #ffe0cc;">Olá, ${nomeExibicao}!</li>
+            <!-- Correção de contraste: coral suave -->
+            <li><a href="#" id="btn-logout" style="color: #ffccd5; font-weight: bold; text-decoration: none;">Sair</a></li>
+          `;
+
+          const btnLogout = document.getElementById("btn-logout");
+          if (btnLogout) {
+            btnLogout.addEventListener("click", (e) => {
+              e.preventDefault();
+              signOut(auth).then(() => {
+                localStorage.removeItem("usuarioLogado");
+                window.location.reload();
+              });
+            });
+          }
+        } else {
+          menu.innerHTML = `
+            ${linksBase}
+            <li><a href="criar-conta.html" style="color: #4CAF50; font-weight: bold; text-decoration: none;">Entrar / Cadastrar</a></li>
+          `;
+        }
+      });
+
+      // --- BUSCA DETALHADA DO PET NO FIRESTORE ---
       const urlParams = new URLSearchParams(window.location.search);
       const petId = urlParams.get("id");
-      const listaPets = JSON.parse(localStorage.getItem("pets")) || [];
-      const pet = listaPets.find((p) => p.id == petId);
-
       const container = document.getElementById("detalhesPet");
+      const secaoAvistamentos = document.getElementById("secao-avistamentos");
 
-      if (pet) {
-        container.innerHTML = `
-        <article class="pet-detail-card">
-          <div class="pet-image-wrapper">
-            <img src="${pet.imagem || "assets/img/adoção.jpg"}" alt="Imagem de ${pet.nome}">
-          </div>
+      async function carregarDetalhes() {
+        if (!petId) {
+          container.innerHTML = `
+            <p style="text-align: center;">ID do pet inválido ou não informado. Volte à página anterior.</p>
+            <a href="index.html" class="voltar-btn" style="display: block; margin: 10px auto; text-align: center; max-width: 150px;">← Voltar</a>
+          `;
+          return;
+        }
 
-          <div class="pet-detail-body">
-            <span class="pet-status">${(pet.status || "Para adoção").toUpperCase()}</span>
-            <h2>${pet.nome}</h2>
-            <p class="pet-description">${pet.descricao || "Sem descrição disponível."}</p>
+        try {
+          // Busca o documento específico usando o ID da URL diretamente do Firestore
+          const docRef = doc(db, "pets", petId);
+          const docSnap = await getDoc(docRef);
 
-            <div class="pet-info-grid">
-              <div><strong>ID:</strong> ${pet.id}</div>
-              <div><strong>Raça:</strong> ${pet.raca || "Não informada"}</div>
-              <div><strong>Sexo:</strong> ${pet.sexo || "Indefinido"}</div>
-              <div><strong>Idade:</strong> ${pet.idade || "Não informada"}</div>
-              <div><strong>Localização:</strong> ${pet.localiza || "Não informada"}</div>
-              <div><strong>Data:</strong> ${pet.data || "Não informada"}</div>
-            </div>
+          if (docSnap.exists()) {
+            const pet = docSnap.data();
+            const statusTexto = pet.status?.toUpperCase() || 'DESAPARECIDO';
+            const statusColor = pet.status === 'encontrado' ? '#4CAF50' : '#ff6600';
 
-            <p class="pet-contact"><strong>Contato:</strong> ${pet.contato || "Não informado"}</p>
+            // Revela a seção de avistamento reativamente apenas se o pet estiver "desaparecido" [1]
+            if (pet.status === "desaparecido") {
+              secaoAvistamentos.style.display = "block";
+            }
 
-            <div class="pet-actions">
-              <a href="index.html" class="voltar-btn">← Voltar</a>
-            </div>
-          </div>
-        </article>
-      `;
-      } else {
-        container.innerHTML = `
-        <p>Pet não encontrado. Volte à página anterior e tente novamente.</p>
-        <a href="index.html" class="voltar-btn">← Voltar</a>
-      `;
+            container.innerHTML = `
+              <article class="pet-detail-card">
+                <div class="pet-image-wrapper">
+                  <img src="${pet.imagem || "assets/img/adoção.jpg"}" alt="Imagem de ${pet.nome || 'Pet'}" onerror="this.src='https://via.placeholder.com/300'">
+                </div>
+
+                <div class="pet-detail-body">
+                  <span class="pet-status" style="background-color: ${statusColor};">${statusTexto}</span>
+                  <h2>${pet.nome || 'Sem nome'}</h2>
+                  <p class="pet-description">${pet.descricao || "Sem descrição disponível."}</p>
+
+                  <div class="pet-info-grid">
+                    <div><strong>Raça:</strong> ${pet.raca || pet.tipoPet || "Não informada"}</div>
+                    <div><strong>Sexo:</strong> ${pet.sexo || "Indefinido"}</div>
+                    <div><strong>Idade:</strong> ${pet.idade || "Não informada"}</div>
+                    <div><strong>Localização:</strong> ${pet.localiza || pet.localizacao || "Não informada"}</div>
+                    <div><strong>Data:</strong> ${pet.data || "Não informada"}</div>
+                  </div>
+
+                  <p class="pet-contact" style="margin-top: 15px;"><strong>Contato:</strong> ${pet.contato || "Não informado"}</p>
+                  
+                  ${pet.whatsapp ? `
+                    <p class="pet-whatsapp" style="margin-top: 8px;">
+                      <strong>WhatsApp:</strong> 
+                      <a href="https://wa.me/55${pet.whatsapp.replace(/\D/g, '')}" target="_blank" style="text-decoration: none; color: #25D366; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width: 20px; height: 20px; vertical-align: middle;">
+                        Falar no WhatsApp
+                      </a>
+                    </p>
+                  ` : ''}
+
+                  <div class="pet-actions" style="margin-top: 20px;">
+                    <a href="index.html" class="voltar-btn" style="text-decoration: none;">← Voltar</a>
+                  </div>
+                </div>
+              </article>
+            `;
+          } else {
+            container.innerHTML = `
+              <p style="text-align: center;">Pet não encontrado. Volte à página anterior e tente novamente.</p>
+              <a href="index.html" class="voltar-btn" style="display: block; margin: 10px auto; text-align: center; max-width: 150px;">← Voltar</a>
+            `;
+          }
+        } catch (error) {
+          console.error("Erro ao buscar detalhes no Firestore:", error);
+          container.innerHTML = `
+            <p style="text-align: center;">Ocorreu um erro ao carregar as informações do pet. Tente novamente mais tarde.</p>
+            <a href="index.html" class="voltar-btn" style="display: block; margin: 10px auto; text-align: center; max-width: 150px;">← Voltar</a>
+          `;
+        }
       }
+
+      // --- SALVAR AVISTAMENTO NA SUBCOLEÇÃO DO PET NO FIRESTORE ---
+      const formAvistamento = document.getElementById("form-avistamento");
+      const btnAvistamento = document.getElementById("btn-avistamento");
+
+      if (formAvistamento) {
+        formAvistamento.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Ativa o estado visual de "Loading" para evitar cliques múltiplos [2]
+          btnAvistamento.disabled = true;
+          btnAvistamento.textContent = "Registrando avistamento... 🐾";
+
+          const local = document.getElementById("avistamento-local").value.trim();
+          const descricao = document.getElementById("avistamento-descricao").value.trim();
+          const contato = document.getElementById("avistamento-contato").value.trim();
+
+          try {
+            // Cria uma nova referência na subcoleção: /pets/{petId}/avistamentos [1]
+            const avistamentosRef = collection(db, "pets", petId, "avistamentos");
+            
+            // Grava o documento de avistamento na nuvem [1]
+            await addDoc(avistamentosRef, {
+              localAvistado: local,
+              descricao: descricao,
+              contatoReportador: contato,
+              dataRegistro: new Date()
+            });
+
+            alert("Avistamento registrado com sucesso! O tutor do pet será eternamente grato pela sua ajuda! ❤️");
+            formAvistamento.reset();
+          } catch (error) {
+            console.error("Erro ao registrar avistamento no Firestore:", error);
+            alert("Não foi possível registrar o avistamento. Verifique sua conexão e tente novamente.");
+          } finally {
+            // Desativa o loading e restaura o botão [2]
+            btnAvistamento.disabled = false;
+            btnAvistamento.textContent = "Registrar Avistamento 🐾";
+          }
+        });
+      }
+
+      carregarDetalhes();
     </script>
   </body>
 </html>
