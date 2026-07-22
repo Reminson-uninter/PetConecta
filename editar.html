@@ -255,17 +255,21 @@
 
       // Validação do WhatsApp se estiver preenchido
    if (petAtualizado.whatsapp) {
-  // Aceita apenas dígitos, entre 10 e 13 caracteres
-  const whatsappValido = /^\d{10,13}$/.test(petAtualizado.whatsapp);
+  // Remove tudo que não for dígito
+  const apenasNumeros = petAtualizado.whatsapp.replace(/\D/g, "");
+  
+  // Verifica se tem entre 10 e 13 dígitos
+  const whatsappValido = /^\d{10,13}$/.test(apenasNumeros);
   
   if (!whatsappValido) {
     mostrarErro(
       document.getElementById("whatsapp"),
-      "Informe apenas números, entre 10 e 13 dígitos (ex: 11999998888)."
+      "Informe um número válido com 10 a 13 dígitos (ex: (73) 99124-3772 ou 73991243772)."
     );
     valido = false;
   }
 }
+
 
 
       // Validação de data no futuro
