@@ -897,16 +897,16 @@
           <li><a href="#contatos">Contato</a></li>
         `;
 
-        if (user) {
+                if (user) {
           // Extrai o nome de exibição do usuário (ou o início do e-mail)
           const nomeExibicao = user.displayName || user.email.split('@')[0];
           
-          // Adicionado o link "Meus Pets" no menu dinâmico para consistência
+          // 🚀 ATUALIZADO: Cores ajustadas para contraste WCAG perfeito sobre fundo laranja
           menu.innerHTML = `
             ${linksBase}
             <li><a href="cadastrados.html">Meus Pets</a></li>
-            <li><span style="color: #ff914d; font-weight: bold; margin-left: 10px;">Olá, ${nomeExibicao}!</span></li>
-            <li><a href="#" id="btn-logout" style="color: #ff3333; font-weight: bold; text-decoration: none;">Sair</a></li>
+            <li><span style="color: #ffe0cc; font-weight: bold; margin-left: 10px; display: inline-block; padding: 10px 16px;">Olá, ${nomeExibicao}!</span></li>
+            <li><a href="#" id="btn-logout" style="color: #ffccd5; font-weight: bold; text-decoration: none;">Sair</a></li>
           `;
 
           // Atribui o clique do logout de forma reativa
@@ -915,13 +915,13 @@
             btnLogout.addEventListener("click", (e) => {
               e.preventDefault();
               signOut(auth).then(() => {
-                // Remove o usuário do localStorage e recarrega a página de maneira segura
                 localStorage.removeItem("usuarioLogado");
                 window.location.reload(); 
               });
             });
           }
-        } else {
+        }
+         else {
           // Usuário deslogado: adiciona o botão verde "Entrar / Cadastrar"
           menu.innerHTML = `
             ${linksBase}
