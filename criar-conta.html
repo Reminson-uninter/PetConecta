@@ -104,7 +104,7 @@
       <input type="email" id="usuario" placeholder="seuemail@exemplo.com" required>
       
       <label for="senha">Senha:</label>
-      <input type="password" id="senha" required>
+      <input type="password" id="senha" autocomplete="current-password" required>
       
       <button type="submit" id="btn-submit">Cadastrar</button>
 
@@ -150,7 +150,15 @@
   <!-- Firebase Script Modificado -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      signInWithRedirect, 
+      getRedirectResult 
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
     // Configuração do seu projeto Firebase
     const firebaseConfig = {
@@ -173,6 +181,22 @@
       localStorage.removeItem("destinoAposLogin");
       window.location.href = destino;
     }
+
+    // --- TRATAR RETORNO DO REDIRECIONAMENTO (MOBILE) ---
+    // Executa ao carregar a página para verificar se o usuário voltou do login do Google no celular
+    getRedirectResult(auth)
+      .then((resultado) => {
+        if (resultado) {
+          const usuario = resultado.user;
+          alert(`Bem-vindo ao PetFinder, ${usuario.displayName}!`);
+          localStorage.setItem("usuarioLogado", JSON.stringify({ usuario: usuario.email }));
+          redirecionarUsuario();
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao recuperar login do Google:", error);
+        alert("Erro ao concluir login: " + error.message);
+      });
 
     let isLoginMode = false;
     const toggleModeBtn = document.getElementById("toggle-mode");
@@ -232,19 +256,25 @@
       });
     }
 
-    // --- REGISTRO / LOGIN COM GOOGLE ---
+    // --- REGISTRO / LOGIN COM GOOGLE (HÍBRIDO MOBILE/DESKTOP) ---
     const btnGoogle = document.getElementById("btn-google");
     if (btnGoogle) {
       btnGoogle.addEventListener("click", async function () {
         try {
-          // Abre o pop-up nativo de autenticação do Google
-          const resultado = await signInWithPopup(auth, provider);
+          // Detecta se o usuário está em um dispositivo móvel
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
           
-          // O usuário está conectado e você pode pegar suas informações (nome, e-mail, foto, etc.)
-          const usuario = resultado.user;
-          alert(`Bem-vindo ao PetFinder, ${usuario.displayName}!`);
-          localStorage.setItem("usuarioLogado", JSON.stringify({ usuario: usuario.email }));
-          redirecionarUsuario();
+          if (isMobile) {
+            // No celular, redireciona (evita pop-up bloqueado)
+            await signInWithRedirect(auth, provider);
+          } else {
+            // No computador, abre o pop-up nativo normalmente
+            const resultado = await signInWithPopup(auth, provider);
+            const usuario = resultado.user;
+            alert(`Bem-vindo ao PetFinder, ${usuario.displayName}!`);
+            localStorage.setItem("usuarioLogado", JSON.stringify({ usuario: usuario.email }));
+            redirecionarUsuario();
+          }
         } catch (error) {
           console.error("Erro no login com Google:", error);
           alert("Erro ao fazer login com o Google: " + error.message);
