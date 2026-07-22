@@ -110,7 +110,7 @@ window.autenticarAcao = async function(acao, petId, usuarioCriador) {
 
     try {
       await updateDoc(firestoreDoc(db, "pets", petId), { status: "encontrado" });
-      alert("Status atualizado com sucesso! Parabéns por encontrar seu pet.");
+      alert("Status updated successfully! Parabéns por encontrar seu pet.");
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
       alert("Erro ao atualizar status.");
@@ -250,7 +250,7 @@ window.exibirPets = function exibirPets() {
     });
     actionsDiv.appendChild(saibaMaisBtn);
 
-    // 🚀 ADICIONADO: Botão "Compartilhar" para WhatsApp
+    // 🚀 ADICIONADO: Botão "Compartilhar" para WhatsApp (Com correção de URL dinámica para subpastas do GitHub Pages)
     const compartilharBtn = document.createElement('button');
     compartilharBtn.textContent = '📢 Compartilhar';
     compartilharBtn.className = 'btn-compartilhar';
@@ -262,7 +262,10 @@ window.exibirPets = function exibirPets() {
     compartilharBtn.style.cursor = 'pointer';
     compartilharBtn.style.fontSize = '10px';
     compartilharBtn.addEventListener('click', () => {
-      const linkDetalhes = `${window.location.origin}/detalhes.html?id=${pet.id}`;
+      // 🚀 CORREÇÃO DE DIRETÓRIO: Descobre a pasta atual dinamicamente (corrige o erro 404)
+      const pastaBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+      const linkDetalhes = `${pastaBase}/detalhes.html?id=${pet.id}`;
+      
       const msg = `🐾 *PetConecta - Pet Desaparecido!* 🐾%0A%0A` +
                   `*Nome:* ${pet.nome}%0A` +
                   `*Tipo:* ${pet.tipo}%0A` +
