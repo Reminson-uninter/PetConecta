@@ -65,10 +65,12 @@ header, main, section {
 /* 🚀 ADICIONADO: Ajuste proporcional de imagem do pet (impede distorção) */
 .pet-image-wrapper img {
   width: 100%;
-  height: 320px;
-  object-fit: cover;
+  height: auto; /* 🚀 Faz a altura se ajustar dinamicamente para mostrar a imagem 100% inteira */
+  max-height: 450px; /* 🚀 Evita que fotos verticais gigantescas empurrem o restante da página muito para baixo */
+  display: block;
   border-bottom: 3px solid #ff751a;
 }
+
 
 /* 🚀 ADICIONADO: Corpo de conteúdo do pet */
 .pet-detail-body {
