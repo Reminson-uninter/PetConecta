@@ -254,13 +254,19 @@
       }
 
       // Validação do WhatsApp se estiver preenchido
-      if (petAtualizado.whatsapp) {
-        const whatsappValido = /^\d{10,13}$/.test(petAtualizado.whatsapp);
-        if (!whatsappValido) {
-          mostrarErro(document.getElementById("whatsapp"), "Informe apenas números entre 10 e 13 dígitos.");
-          valido = false;
-        }
-      }
+   if (petAtualizado.whatsapp) {
+  // Aceita apenas dígitos, entre 10 e 13 caracteres
+  const whatsappValido = /^\d{10,13}$/.test(petAtualizado.whatsapp);
+  
+  if (!whatsappValido) {
+    mostrarErro(
+      document.getElementById("whatsapp"),
+      "Informe apenas números, entre 10 e 13 dígitos (ex: 11999998888)."
+    );
+    valido = false;
+  }
+}
+
 
       // Validação de data no futuro
       const dataFormatada = new Date(petAtualizado.data);
