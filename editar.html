@@ -185,7 +185,7 @@
 
         } else {
           alert("O pet solicitado não existe ou foi excluído.");
-          window.location.href = "cadastrados.html";
+          window.location.href = "index.html";
         }
       } catch (error) {
         console.error("Erro ao carregar dados do pet no Firestore:", error);
@@ -196,7 +196,7 @@
     // Retorno do botão de cancelar edição
     document.getElementById("cancelar-btn").addEventListener("click", function () {
       if (confirm("Deseja cancelar a edição e voltar sem salvar?")) {
-        window.location.href = "cadastrados.html";
+        window.location.href = "index.html";
       }
     });
 
