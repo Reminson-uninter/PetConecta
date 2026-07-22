@@ -69,6 +69,7 @@
         </div>
         <h1>Bem-vindo ao PetConecta!</h1>
         <h2>Cadastre seu pet desaparecido aqui!</h2>
+        <!-- 🚀 ATIVADO: Agora este botão redireciona para a página de publicação -->
         <button id="action-btn" class="btn">Cadastrar</button>
       </section>
 
@@ -176,7 +177,6 @@
 
       <section class="carousel-section">
         <div id="carousel_info" class="carousel slide" data-bs-ride="carousel">
-          <!-- NOVO: Indicadores Visuais de Navegação do Carrossel -->
           <div class="carousel-indicators">
             <button type="button" data-bs-target="#carousel_info" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
             <button type="button" data-bs-target="#carousel_info" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -427,6 +427,7 @@
         </div>
         <div id="mapa-pets"></div>
       </section>
+      
       <section class="desaparecidos">
         <h1>Desaparecidos</h1>
         <div class="filtros">
@@ -580,6 +581,14 @@
       btnMobile.addEventListener("click", toggleMenu);
 
       document.addEventListener("DOMContentLoaded", () => {
+        // --- ADICIONADO: Lógica de clique do botão "Cadastrar" do Banner ---
+        const actionBtn = document.getElementById("action-btn");
+        if (actionBtn) {
+          actionBtn.addEventListener("click", () => {
+            window.location.href = "publicar.html";
+          });
+        }
+
         // --- ELEMENTOS DO PRIMEIRO FILTRO (ADOÇÃO) ---
         const btnLocalizacao = document.getElementById("btnLocalizacao");
         const statusLocalizacao = document.getElementById("statusLocalizacao");
@@ -687,7 +696,6 @@
           console.log(
             `Buscando no banco de dados do PetConecta animais cadastrados na cidade: ${cidade}`,
           );
-          // Aqui você pode chamar as funções dos arquivos externos para atualizar as vitrines
         }
 
         // --- CONFIGURAÇÃO E INICIALIZAÇÃO DO MAPA ---
@@ -853,7 +861,8 @@
 
     <!-- Script modular integrado com o Firestore e o Authentication em tempo real -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+      // 🚀 ATUALIZADO: Importamos getApps e getApp para evitar erros de inicialização duplicada
+      import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
       import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
@@ -867,8 +876,8 @@
         appId: "1:1030110038715:web:151deca61831138159b79e"
       };
 
-      // Inicialização
-      const app = initializeApp(firebaseConfig);
+      // 🚀 CORREÇÃO: Inicialização segura do Firebase (evita conflitos com outros scripts)
+      const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
       const db = getFirestore(app);
       const auth = getAuth(app);
 
@@ -892,8 +901,10 @@
           // Extrai o nome de exibição do usuário (ou o início do e-mail)
           const nomeExibicao = user.displayName || user.email.split('@')[0];
           
+          // Adicionado o link "Meus Pets" no menu dinâmico para consistência
           menu.innerHTML = `
             ${linksBase}
+            <li><a href="cadastrados.html">Meus Pets</a></li>
             <li><span style="color: #ff914d; font-weight: bold; margin-left: 10px;">Olá, ${nomeExibicao}!</span></li>
             <li><a href="#" id="btn-logout" style="color: #ff3333; font-weight: bold; text-decoration: none;">Sair</a></li>
           `;
@@ -904,9 +915,9 @@
             btnLogout.addEventListener("click", (e) => {
               e.preventDefault();
               signOut(auth).then(() => {
-               // Remove o usuário do localStorage e recarrega a página
+                // Remove o usuário do localStorage e recarrega a página de maneira segura
                 localStorage.removeItem("usuarioLogado");
-                window.location.href = "cadastrados.html"; // Redireciona para a página de login ou inicial
+                window.location.reload(); 
               });
             });
           }
@@ -920,6 +931,7 @@
       });
 
       // --- MAPA EM TEMPO REAL ---
+      // 🚀 ADICIONADO: Callback de tratamento de erro para capturar "Missing or insufficient permissions" de forma segura
       onSnapshot(collection(db, "pets"), (snapshot) => {
         const ocorrencias = [];
         snapshot.forEach(doc => {
@@ -937,6 +949,13 @@
 
         // Grava os dados reativos no localStorage para alimentar o script nativo do Leaflet
         localStorage.setItem("ocorrenciasPets", JSON.stringify(ocorrencias));
+      }, (error) => {
+        console.error("Erro na escuta de atualizações do mapa (Firestore):", error);
+        const statusMapa = document.getElementById("mapa-status");
+        if (statusMapa) {
+          statusMapa.textContent = "Erro de autorização nas regras do banco de dados.";
+          statusMapa.style.color = "red";
+        }
       });
     </script>
   </body>
