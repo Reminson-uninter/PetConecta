@@ -65,7 +65,7 @@ onSnapshot(collection(db, "pets"), (snapshot) => {
   }
 });
 
-// 🚀 ADICIONADO: Função global unificada para gerenciar as ações seguras (Editar, Excluir, Encontrar)
+// Função global unificada para gerenciar as ações seguras (Editar, Excluir, Encontrar)
 window.autenticarAcao = async function(acao, petId, usuarioCriador) {
   const usuarioLogadoStr = localStorage.getItem('usuarioLogado');
   const usuarioLogado = usuarioLogadoStr ? JSON.parse(usuarioLogadoStr) : null;
@@ -75,7 +75,7 @@ window.autenticarAcao = async function(acao, petId, usuarioCriador) {
     return;
   }
 
-  // Segurança de segurança básica no cliente (regras do Storage e Firestore reforçam isso no servidor)
+  // Segurança no cliente: Garante que apenas o criador pode alterar o pet
   if (usuarioCriador && usuarioLogado.usuario.toLowerCase() !== usuarioCriador.toLowerCase()) {
     alert("Ação não autorizada. Apenas o criador deste pet pode realizar alterações.");
     return;
@@ -88,14 +88,14 @@ window.autenticarAcao = async function(acao, petId, usuarioCriador) {
     if (!confirm(`Deseja realmente excluir permanentemente o cadastro de ${pet.nome}?`)) return;
 
     try {
-      // 1. Deleta a imagem física do Cloud Storage se houver url válida
+      // 1. Deleta a imagem física do Cloud Storage se houver url válida [1]
       if (pet.imagem && pet.imagem.includes("firebasestorage.googleapis.com")) {
         console.log("Excluindo foto do Storage...");
         const refDoArquivo = storageRef(storage, pet.imagem);
         await deleteObject(refDoArquivo);
       }
 
-      // 2. Remove o documento do Firestore
+      // 2. Remove o documento do Firestore [2]
       console.log("Excluindo dados do Firestore...");
       await deleteDoc(firestoreDoc(db, "pets", petId));
       
@@ -109,7 +109,6 @@ window.autenticarAcao = async function(acao, petId, usuarioCriador) {
     if (!confirm(`Deseja alterar o status de ${pet.nome} para "Encontrado"?`)) return;
 
     try {
-      // Atualiza o campo de status do pet
       await updateDoc(firestoreDoc(db, "pets", petId), { status: "encontrado" });
       alert("Status atualizado com sucesso! Parabéns por encontrar seu pet.");
     } catch (error) {
@@ -118,10 +117,11 @@ window.autenticarAcao = async function(acao, petId, usuarioCriador) {
     }
   } 
   else if (acao === "editar") {
-    // Redireciona o usuário para a página de edição com o ID do pet na URL
-    window.location.href = `publicar.html?id=${petId}`;
+    // 🚀 REDIRECIONAMENTO CORRIGIDO: Agora aponta para a página editar.html [2]
+    window.location.href = `editar.html?id=${petId}`;
   }
 };
+
 
 window.exibirPets = function exibirPets() {
   const galeria = document.querySelector(".container-cards");
