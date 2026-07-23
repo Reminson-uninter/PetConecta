@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Editar Pet - PetFinder</title>
+  <!-- 🚀 ADICIONADO: Dependências CSS do Leaflet para o mapa interativo -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/editar-pet.css">
   <link rel="stylesheet" href="css/buttons-global.css" />
 </head>
@@ -24,6 +26,11 @@
         <div>
           <label for="localizacao">Última localização vista:</label>
           <input type="text" id="localizacao" name="localizacao" placeholder="Ex: Rua das flores, Bairro Rio Jardim..." required>
+          
+          <!-- 🚀 ADICIONADO: Container do Mapa e campos ocultos de coordenadas geográficas -->
+          <div id="map" style="height: 300px; border-radius: 8px; margin-top: 10px; border: 1px solid #ccc; z-index: 1;"></div>
+          <input type="hidden" id="lat" name="latitude" />
+          <input type="hidden" id="lng" name="longitude" />
         </div>
 
         <div>
@@ -40,6 +47,16 @@
             <option value="macho">Macho</option>
             <option value="fêmea">Fêmea</option>
             <option value="indefinido">Indefinido</option>
+          </select>
+        </div>
+
+        <!-- 🚀 ADICIONADO: Campo Porte idêntico ao formulário de cadastro -->
+        <div>
+          <label for="porte">Porte:</label>
+          <select id="porte" name="porte" required>
+            <option value="Pequeno">Pequeno</option>
+            <option value="Médio">Médio</option>
+            <option value="Grande">Grande</option>
           </select>
         </div>
 
@@ -107,6 +124,9 @@
     </div>
   </footer>
 
+  <!-- 🚀 ADICIONADO: Dependências JS do Leaflet antes do Firebase -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- Script Modular Integrado com o Firebase -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
@@ -142,6 +162,14 @@
       window.location.href = "cadastrados.html";
     }
 
+    // 🚀 ADICIONADO: Configuração e Inicialização Local do Mapa Leaflet
+    const map = L.map("map").setView([-14.235, -51.9253], 4);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    let marker;
+
     // Monitora o login e executa o carregamento dos dados do pet
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -153,7 +181,7 @@
       }
     });
 
-    // 🚀 ADICIONADO: Função para recuperar os dados reais do Firestore
+    // Função para recuperar os dados reais do Firestore e mover o pin do mapa
     async function carregarDadosPet() {
       try {
         const docRef = doc(db, "pets", id);
@@ -174,6 +202,7 @@
           document.getElementById("localizacao").value = pet.localizacao || pet.localiza || "";
           document.getElementById("tipo").value = pet.tipo || pet.raca || "cachorro";
           document.getElementById("sexo").value = pet.sexo || "macho";
+          document.getElementById("porte").value = pet.porte || "Pequeno"; // 🚀 ADICIONADO
           document.getElementById("idade").value = pet.idade || "";
           document.getElementById("data").value = pet.data || "";
           document.getElementById("contato").value = pet.contato || "";
@@ -183,15 +212,91 @@
           urlImagemAtual = pet.imagem || "";
           document.getElementById("preview-imagem").src = urlImagemAtual || "https://via.placeholder.com/150";
 
+          // 🚀 ADICIONADO: Carrega e move o marcador do mapa para as coordenadas gravadas do pet
+          const lat = pet.lat || pet.latitude;
+          const lng = pet.lng || pet.longitude;
+
+          if (lat && lng) {
+            document.getElementById("lat").value = lat;
+            document.getElementById("lng").value = lng;
+
+            const latlng = L.latLng(lat, lng);
+            if (marker) {
+              marker.setLatLng(latlng);
+            } else {
+              marker = L.marker(latlng).addTo(map);
+            }
+            map.setView(latlng, 15);
+          }
+
         } else {
           alert("O pet solicitado não existe ou foi excluído.");
-          window.location.href = "index.html";
+          window.location.href = "cadastrados.html";
         }
       } catch (error) {
         console.error("Erro ao carregar dados do pet no Firestore:", error);
         alert("Erro ao buscar as informações do pet.");
       }
     }
+
+    // Lógica do mapa interativo (Search por Digitação)
+    const campoLocalizacao = document.getElementById("localizacao");
+    if (campoLocalizacao) {
+      campoLocalizacao.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+
+      campoLocalizacao.addEventListener("change", function () {
+        const query = this.value.trim();
+        if (!query) return;
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.length > 0) {
+              const lat = parseFloat(data[0].lat);
+              const lon = parseFloat(data[0].lon);
+              const latlng = L.latLng(lat, lon);
+
+              if (marker) {
+                marker.setLatLng(latlng);
+              } else {
+                marker = L.marker(latlng).addTo(map);
+              }
+              map.setView(latlng, 15);
+
+              document.getElementById("lat").value = lat;
+              document.getElementById("lng").value = lon;
+            }
+          })
+          .catch((err) => console.error("Erro na geocodificação:", err));
+      });
+    }
+
+    // Lógica do mapa interativo (Click no mapa)
+    map.on("click", function (e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng).addTo(map);
+      }
+
+      document.getElementById("lat").value = lat;
+      document.getElementById("lng").value = lng;
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("localizacao").value =
+            data.display_name || `Lat: ${lat}, Lng: ${lng}`;
+        });
+    });
 
     // Retorno do botão de cancelar edição
     document.getElementById("cancelar-btn").addEventListener("click", function () {
@@ -225,18 +330,21 @@
         raca: document.getElementById("tipo").value,
         tipo: document.getElementById("tipo").value,
         sexo: document.getElementById("sexo").value,
+        porte: document.getElementById("porte").value, // 🚀 ADICIONADO
         idade: document.getElementById("idade").value.trim(),
         data: document.getElementById("data").value,
         contato: document.getElementById("contato").value.trim(),
         whatsapp: document.getElementById("whatsapp").value.trim(),
         descricao: document.getElementById("descricao").value.trim(),
+        lat: parseFloat(document.getElementById("lat").value) || null, // 🚀 ADICIONADO
+        lng: parseFloat(document.getElementById("lng").value) || null, // 🚀 ADICIONADO
         usuarioCriador: usuarioLogado.email
       };
 
       let valido = true;
 
       // Validação dos campos obrigatórios
-      const camposObrigatorios = ["nome", "localiza", "idade", "data", "contato"];
+      const camposObrigatorios = ["nome", "localiza", "idade", "data", "contato", "porte"];
       camposObrigatorios.forEach(campo => {
         const valor = petAtualizado[campo];
         if (!valor) {
@@ -254,23 +362,17 @@
       }
 
       // Validação do WhatsApp se estiver preenchido
-   if (petAtualizado.whatsapp) {
-  // Remove tudo que não for dígito
-  const apenasNumeros = petAtualizado.whatsapp.replace(/\D/g, "");
-  
-  // Verifica se tem entre 10 e 13 dígitos
-  const whatsappValido = /^\d{10,13}$/.test(apenasNumeros);
-  
-  if (!whatsappValido) {
-    mostrarErro(
-      document.getElementById("whatsapp"),
-      "Informe um número válido com 10 a 13 dígitos (ex: (73) 99124-3772 ou 73991243772)."
-    );
-    valido = false;
-  }
-}
-
-
+      if (petAtualizado.whatsapp) {
+        const apenasNumeros = petAtualizado.whatsapp.replace(/\D/g, "");
+        const whatsappValido = /^\d{10,13}$/.test(apenasNumeros);
+        if (!whatsappValido) {
+          mostrarErro(
+            document.getElementById("whatsapp"),
+            "Informe um número válido com 10 a 13 dígitos (ex: (73) 99124-3772 ou 73991243772)."
+          );
+          valido = false;
+        }
+      }
 
       // Validação de data no futuro
       const dataFormatada = new Date(petAtualizado.data);
@@ -299,12 +401,12 @@
 
         petAtualizado.imagem = linkImagemFinal;
 
-        // Atualização dos dados no Firestore
+        // Atualização dos dados no Firestore [2]
         console.log("Atualizando registro do Firestore...");
         await updateDoc(doc(db, "pets", id), petAtualizado);
 
         alert("Pet atualizado com sucesso!");
-        window.location.href = "index.html";
+        window.location.href = "cadastrados.html"; // Retorna para Meus Pets após a edição segura
 
       } catch (error) {
         console.error("Erro ao salvar dados no Firebase:", error);
@@ -313,13 +415,13 @@
     });
 
     // Funções auxiliares de validação visual
-    function mostrarErro(input, mensagem) {
+    function mostrarErro(input, message) {
       const erro = document.createElement("small");
       erro.classList.add("erro");
       erro.style.color = "red";
       erro.style.fontWeight = "bold";
       erro.style.display = "block";
-      erro.textContent = mensagem;
+      erro.textContent = message;
       input.insertAdjacentElement("afterend", erro);
     }
 
